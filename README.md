@@ -1,0 +1,1 @@
+My solution to Avito trainee assignment
