@@ -6,6 +6,7 @@ import (
 	service "Avito_trainee_assignment/internal/service/banner"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"log/slog"
 )
 
 type App struct {
@@ -15,7 +16,7 @@ type App struct {
 	echo *echo.Echo
 }
 
-func New() (*App, error) {
+func New(log *slog.Logger) *App {
 	app := &App{}
 
 	app.echo = echo.New()
@@ -32,7 +33,7 @@ func New() (*App, error) {
 	//app.echo.PATCH("/Get", app.api.Get)
 	//app.echo.DELETE("/Get", app.api.Get)
 
-	return app, nil
+	return app
 }
 
 func (a *App) Run() error {
@@ -44,4 +45,9 @@ func (a *App) Run() error {
 	}
 
 	return nil
+}
+func (a *App) MustRun() {
+	if err := a.Run(); err != nil {
+		panic(err)
+	}
 }

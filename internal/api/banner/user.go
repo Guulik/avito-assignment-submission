@@ -3,9 +3,9 @@ package banner
 import (
 	"Avito_trainee_assignment/internal/domain"
 	"Avito_trainee_assignment/internal/service"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"strconv"
 )
 
 var (
@@ -20,19 +20,37 @@ type Api struct {
 }
 
 func New(service service.BannerService) *Api {
+	featureId = -1
+	tagId = -1
+	lastRevision = false
+	token = ""
+
 	return &Api{
 		svc: service,
 	}
 }
 
 func (a *Api) GetUserBanner(ctx echo.Context) error {
-	featureId, _ = strconv.Atoi(ctx.QueryParam("feature_id"))
-	if !validToken(token) {
-		//TODO return forbidden 403
+	var request domain.GetUserRequest
+	err := ctx.Bind(&request)
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	request := domain.GetUserRequest{}
-	_, err := a.svc.GetUserBanner(request)
+	binder := &echo.DefaultBinder{}
+	err = binder.BindHeaders(ctx, request)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("%+v\n", request)
+
+	/*if !(validator.Validate(request.Token) == validator.User) {
+		return echo.NewHTTPError(http.StatusForbidden)
+	}*/
+
+	_, err = a.svc.GetUserBanner(request)
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err)
@@ -40,9 +58,4 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 	//TODO implement me
 
 	return nil
-}
-
-func validToken(token string) bool {
-
-	panic("implement me")
 }

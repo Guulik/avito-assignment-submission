@@ -21,7 +21,7 @@ func New(repository repository.BannerRepository) *Service {
 }
 
 func (s *Service) GetUserBanner(req domain.GetUserRequest) (*model.BannerContent, error) {
-	//TODO удалить этот ретурн
+	//TODO удалить этот ретурн когда будет что возвращать
 	return nil, errors.New("НЕТ ТАКОГО БАННЕРА И ВООБЩЕ НИЧЕГО ПОКА НЕ РЕАЛИЗОВАНО")
 
 	_ = s.repo.DBGetUserBanner(req.FeatureId, req.TagIg, req.LastRevision)

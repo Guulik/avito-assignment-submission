@@ -24,7 +24,7 @@ func (r *Repository) DBGetBanners(featureId int, tagIg int, limit int, offset in
 	panic("implement me")
 }
 
-func (r *Repository) DBCreateBanner(featureId int, tagsId []int, content model.BannerContent) int {
+func (r *Repository) DBCreateBanner(featureId int, tagsId []int, content model.BannerContent, isActive bool) int {
 	//TODO implement me
 	panic("implement me")
 }

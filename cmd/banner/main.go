@@ -2,16 +2,39 @@ package main
 
 import (
 	"Avito_trainee_assignment/internal/app"
-	"fmt"
+	"Avito_trainee_assignment/internal/config"
+	"log/slog"
+	"os"
+)
+
+const (
+	envLocal = "local"
+	envProd  = "prod"
 )
 
 func main() {
-	a, err := app.New()
-	if err != nil {
-		fmt.Println(err)
+
+	cfg := config.MustLoad()
+	log := setupLogger(cfg.Env)
+
+	a := app.New(log)
+
+	a.MustRun()
+
+}
+
+func setupLogger(env string) *slog.Logger {
+	var log *slog.Logger
+
+	switch env {
+	case envLocal:
+		log = slog.New(
+			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
+	case envProd:
+		log = slog.New(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		)
 	}
-	err = a.Run()
-	if err != nil {
-		fmt.Println(err)
-	}
+	return log
 }
