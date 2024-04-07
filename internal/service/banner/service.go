@@ -1,50 +1,24 @@
 package banner
 
 import (
-	"Avito_trainee_assignment/internal/domain"
-	"Avito_trainee_assignment/internal/domain/model"
-	"Avito_trainee_assignment/internal/repository"
 	"Avito_trainee_assignment/internal/service"
-	"errors"
+	"Avito_trainee_assignment/internal/storage"
+	"log/slog"
 )
 
 var _ service.BannerService = (*Service)(nil)
 
 type Service struct {
-	repo repository.BannerRepository
+	log     *slog.Logger
+	storage storage.BannerStorage
 }
 
-func New(repository repository.BannerRepository) *Service {
+func New(
+	log *slog.Logger,
+	storage storage.BannerStorage,
+) *Service {
 	return &Service{
-		repo: repository,
+		log:     log,
+		storage: storage,
 	}
-}
-
-func (s *Service) GetUserBanner(req domain.GetUserRequest) (*model.BannerContent, error) {
-	//TODO удалить этот ретурн когда будет что возвращать
-	return nil, errors.New("НЕТ ТАКОГО БАННЕРА И ВООБЩЕ НИЧЕГО ПОКА НЕ РЕАЛИЗОВАНО")
-
-	_ = s.repo.DBGetUserBanner(req.FeatureId, req.TagIg, req.LastRevision)
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) GetBanners(req domain.GetRequest) (*model.Banner, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) CreateBanner(req domain.CreateRequest) (int, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) UpdateBanner(req domain.UpdateRequest) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *Service) DeleteBanner(req domain.DeleteRequest) error {
-	//TODO implement me
-	panic("implement me")
 }

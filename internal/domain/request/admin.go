@@ -1,39 +1,33 @@
-package domain
+package request
 
 import "Avito_trainee_assignment/internal/domain/model"
 
-type GetUserRequest struct {
-	FeatureId    int  `query:"feature_id"`
-	TagIg        int  `query:"tag_id"`
-	LastRevision bool `query:"use_last_revision"`
-	//Token        string `header:"token"`
-}
-
 type GetRequest struct {
+	Token     string `header:"token"`
 	FeatureId int    `query:"feature_id"`
 	TagIg     int    `query:"tag_id"`
 	Limit     int    `query:"limit"`
 	Offset    int    `query:"offset"`
-	Token     string `header:"token"`
 }
 
 type CreateRequest struct {
 	Token     string              `header:"token"`
-	FeatureId int                 `json:"feature_id"`
 	TagIds    []int               `json:"tag_ids"`
+	FeatureId int                 `json:"feature_id"`
 	Content   model.BannerContent `json:"content"`
 	IsActive  bool                `json:"is_active"`
 }
 
 type UpdateRequest struct {
-	BannerId  int
-	TagsId    []int
-	FeatureId int
-	Content   model.BannerContent
-	Token     string `header:"token"`
+	BannerId  int                 `param:"id"`
+	Token     string              `header:"token"`
+	TagsId    []int               `json:"tag_ids"`
+	FeatureId int                 `json:"featureId"`
+	Content   model.BannerContent `json:"content"`
+	IsActive  bool                `json:"is_active"`
 }
 
 type DeleteRequest struct {
-	BannerId int
+	BannerId int    `param:"id"`
 	Token    string `header:"token"`
 }

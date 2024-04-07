@@ -1,37 +1,38 @@
 package app
 
 import (
-	api "Avito_trainee_assignment/internal/api/banner"
-	repo "Avito_trainee_assignment/internal/repository/banner"
+	"Avito_trainee_assignment/internal/api"
+	"Avito_trainee_assignment/internal/config"
 	service "Avito_trainee_assignment/internal/service/banner"
+	"Avito_trainee_assignment/internal/storage/postgresql"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"log/slog"
 )
 
 type App struct {
-	api  *api.Api
-	svc  *service.Service
-	repo *repo.Repository
-	echo *echo.Echo
+	api     *api.Api
+	svc     *service.Service
+	storage *postgresql.Storage
+	echo    *echo.Echo
 }
 
-func New(log *slog.Logger) *App {
+func New(log *slog.Logger, cfg *config.Config) *App {
 	app := &App{}
 
 	app.echo = echo.New()
 
-	app.repo = repo.New()
+	app.storage = postgresql.New()
 
-	app.svc = service.New(app.repo)
+	app.svc = service.New(log, app.storage)
 
-	app.api = api.New(app.svc)
+	app.api = api.New(log, app.svc)
 
-	//app.echo.POST("/Create", app.api.Create)
 	app.echo.GET("/user_banner/get", app.api.GetUserBanner)
-	//app.echo.GET("/Get", app.api.Get)
-	//app.echo.PATCH("/Get", app.api.Get)
-	//app.echo.DELETE("/Get", app.api.Get)
+	app.echo.GET("/banner", app.api.GetBanner)
+	app.echo.POST("/banner", app.api.CreateBanner)
+	app.echo.PATCH("/banner/{id}", app.api.PatchBanner)
+	app.echo.DELETE("/banner/{id}", app.api.DeleteBanner)
 
 	return app
 }
