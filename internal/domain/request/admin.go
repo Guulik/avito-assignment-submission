@@ -5,7 +5,7 @@ import "Avito_trainee_assignment/internal/domain/model"
 type GetRequest struct {
 	Token     string `header:"token"`
 	FeatureId int    `query:"feature_id"`
-	TagIg     int    `query:"tag_id"`
+	TagId     int    `query:"tag_id"`
 	Limit     int    `query:"limit"`
 	Offset    int    `query:"offset"`
 }
@@ -21,7 +21,7 @@ type CreateRequest struct {
 type UpdateRequest struct {
 	BannerId  int                 `param:"id"`
 	Token     string              `header:"token"`
-	TagsId    []int               `json:"tag_ids"`
+	TagIds    []int               `json:"tag_ids"`
 	FeatureId int                 `json:"featureId"`
 	Content   model.BannerContent `json:"content"`
 	IsActive  bool                `json:"is_active"`

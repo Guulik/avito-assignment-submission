@@ -27,6 +27,9 @@ type BannerService interface {
 		tagsId []int,
 		featureId int,
 		content model.BannerContent,
+		isActive bool,
 	) error
-	DeleteBanner(bannerId int) error
+	DeleteBanner(
+		bannerId int,
+	) error
 }

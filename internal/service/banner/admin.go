@@ -12,7 +12,7 @@ func (s *Service) CreateBanner(featureId int, tagsId []int, content model.Banner
 	panic("implement me")
 }
 
-func (s *Service) UpdateBanner(bannerId int, tagsId []int, featureId int, content model.BannerContent) error {
+func (s *Service) UpdateBanner(bannerId int, tagsId []int, featureId int, content model.BannerContent, isActive bool) error {
 	//TODO implement me
 	panic("implement me")
 }
