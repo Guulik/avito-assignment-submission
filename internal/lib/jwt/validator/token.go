@@ -1,37 +1,50 @@
 package validator
 
-import "errors"
+import (
+	"errors"
+	"github.com/dgrijalva/jwt-go"
+)
 
 var (
 	ErrNotValid = errors.New("provided token is not valid")
 	ErrNotAdmin = errors.New("token does not belongs to admin")
-	ErrNotUser  = errors.New("token does not belongs to user")
+	//ErrNotUser  = errors.New("token does not belongs to user")
+)
+
+const (
+	secretKey = "guulik"
 )
 
 func CheckAdmin(token string) error {
-	//TODO implement me
-	if !valid(token) {
-		return ErrNotValid
+	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+
+	if err != nil {
+		return err
 	}
-	//if admin
-	return nil
-	//else
-	return ErrNotAdmin
+
+	claims, ok := t.Claims.(jwt.MapClaims)
+
+	if ok && claims["admin"] == true {
+		return nil
+	} else {
+		return ErrNotAdmin
+	}
 }
 
-func CheckUser(token string) error {
-	//TODO implement me
-	if !valid(token) {
+func Authorize(token string) error {
+	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+	if err != nil {
+		return err
+	}
+
+	_, ok := t.Claims.(jwt.MapClaims)
+	if ok && t.Valid {
+		return nil
+	} else {
 		return ErrNotValid
 	}
-	//if user
-	return nil
-	//else
-	return ErrNotUser
-}
-
-func valid(token string) bool {
-	//TODO implement me
-	return true
-	return false
 }

@@ -9,24 +9,24 @@ type BannerService interface {
 		featureId int,
 		tagId int,
 		lastRevision bool,
-	) (*model.BannerContent, error)
+	) (map[string]interface{}, error)
 	GetBanners(
 		featureId int,
-		tagIg int,
+		tagId int,
 		limit int,
 		offset int,
 	) (*model.Banner, error)
 	CreateBanner(
 		featureId int,
-		tagsId []int,
-		content model.BannerContent,
+		tagIds []int,
+		content map[string]interface{},
 		isActive bool,
 	) (int, error)
 	UpdateBanner(
 		bannerId int,
-		tagsId []int,
+		tagIds []int,
 		featureId int,
-		content model.BannerContent,
+		content map[string]interface{},
 		isActive bool,
 	) error
 	DeleteBanner(

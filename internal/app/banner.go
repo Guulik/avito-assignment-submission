@@ -3,7 +3,7 @@ package app
 import (
 	"Avito_trainee_assignment/internal/api"
 	"Avito_trainee_assignment/internal/config"
-	service "Avito_trainee_assignment/internal/service/banner"
+	service "Avito_trainee_assignment/internal/service/bannerSvc"
 	"Avito_trainee_assignment/internal/storage/postgresql"
 	"fmt"
 	"github.com/labstack/echo/v4"
@@ -31,8 +31,8 @@ func New(log *slog.Logger, cfg *config.Config) *App {
 	app.echo.GET("/user_banner/get", app.api.GetUserBanner)
 	app.echo.GET("/banner", app.api.GetBanner)
 	app.echo.POST("/banner", app.api.CreateBanner)
-	app.echo.PATCH("/banner/{id}", app.api.PatchBanner)
-	app.echo.DELETE("/banner/{id}", app.api.DeleteBanner)
+	app.echo.PATCH("/banner/:id", app.api.PatchBanner)
+	app.echo.DELETE("/banner/:id", app.api.DeleteBanner)
 
 	return app
 }

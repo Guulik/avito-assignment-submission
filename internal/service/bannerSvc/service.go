@@ -1,4 +1,4 @@
-package banner
+package bannerSvc
 
 import (
 	"Avito_trainee_assignment/internal/service"

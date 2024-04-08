@@ -3,13 +3,11 @@ package model
 import "time"
 
 type Banner struct {
-	featureId int32
-	tagsId    []int32
-	content   BannerContent
-	isActive  bool
-	createdAt time.Time
-	updatedAt time.Time
-}
-
-type BannerContent struct {
+	ID        int32
+	FeatureId int32
+	TagIds    []int32
+	Content   map[string]interface{}
+	IsActive  bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

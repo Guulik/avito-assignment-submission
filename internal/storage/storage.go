@@ -6,7 +6,9 @@ import (
 )
 
 var (
-	ErrNotFound = errors.New("banner not found in DB")
+	ErrNotFound   = errors.New("banner not found in DB")
+	ErrSaveFail   = errors.New("failed to write banner to DB")
+	ErrDeleteFail = errors.New("failed to remove banner from DB")
 )
 
 type BannerStorage interface {
@@ -14,7 +16,7 @@ type BannerStorage interface {
 		featureId int,
 		tagId int,
 		lastRevision bool,
-	) (*model.BannerContent, error)
+	) (*model.Banner, error)
 	Banners(
 		featureId int,
 		tagIg int,
@@ -24,14 +26,15 @@ type BannerStorage interface {
 	Save(
 		featureId int,
 		tagsId []int,
-		content model.BannerContent,
+		content map[string]interface{},
 		isActive bool,
 	) (int, error)
 	Patch(
 		bannerId int,
 		tagsId []int,
 		featureId int,
-		content model.BannerContent,
+		content map[string]interface{},
+		isActive bool,
 	) error
 	Delete(bannerId int) error
 }

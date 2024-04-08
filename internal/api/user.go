@@ -31,9 +31,9 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 
 	log.Info(sl.Req(req))
 
-	if err = validator.CheckUser(req.Token); err != nil {
-		a.log.Error("incorrect token", sl.Err(err))
-		return echo.NewHTTPError(http.StatusForbidden, err)
+	if err = validator.Authorize(req.Token); err != nil {
+		log.Error("incorrect token", sl.Err(err))
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
 	}
 
 	_, err = a.svc.GetUserBanner(
@@ -43,8 +43,10 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 	)
 
 	if err != nil {
-		return ctx.String(http.StatusOK, err.Error())
+		log.Error("failed to get banner for user", sl.Err(err))
+		return echo.NewHTTPError(http.StatusNotFound, err)
 	}
 
+	//TODO: replace dummy response
 	return ctx.String(http.StatusOK, "its not a banner it is dummy response")
 }

@@ -1,7 +1,5 @@
 package request
 
-import "Avito_trainee_assignment/internal/domain/model"
-
 type GetRequest struct {
 	Token     string `header:"token"`
 	FeatureId int    `query:"feature_id"`
@@ -11,20 +9,20 @@ type GetRequest struct {
 }
 
 type CreateRequest struct {
-	Token     string              `header:"token"`
-	TagIds    []int               `json:"tag_ids"`
-	FeatureId int                 `json:"feature_id"`
-	Content   model.BannerContent `json:"content"`
-	IsActive  bool                `json:"is_active"`
+	Token     string                 `header:"token"`
+	TagIds    []int                  `json:"tag_ids"`
+	FeatureId int                    `json:"feature_id"`
+	Content   map[string]interface{} `json:"content"`
+	IsActive  bool                   `json:"is_active"`
 }
 
 type UpdateRequest struct {
-	BannerId  int                 `param:"id"`
-	Token     string              `header:"token"`
-	TagIds    []int               `json:"tag_ids"`
-	FeatureId int                 `json:"featureId"`
-	Content   model.BannerContent `json:"content"`
-	IsActive  bool                `json:"is_active"`
+	BannerId  int                    `param:"id"`
+	Token     string                 `header:"token"`
+	TagIds    []int                  `json:"tag_ids"`
+	FeatureId int                    `json:"featureId"`
+	Content   map[string]interface{} `json:"content"`
+	IsActive  bool                   `json:"is_active"`
 }
 
 type DeleteRequest struct {

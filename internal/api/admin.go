@@ -1,7 +1,6 @@
 package api
 
 import (
-	"Avito_trainee_assignment/internal/domain/model"
 	"Avito_trainee_assignment/internal/domain/request"
 	"Avito_trainee_assignment/internal/lib/binder"
 	"Avito_trainee_assignment/internal/lib/jwt/validator"
@@ -61,7 +60,7 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 		Token:     "",
 		TagIds:    nil,
 		FeatureId: -1,
-		Content:   model.BannerContent{},
+		Content:   nil,
 		IsActive:  false,
 	}
 
@@ -83,11 +82,14 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 		req.IsActive,
 	)
 
+	if err != nil {
+		return ctx.String(http.StatusOK, err.Error())
+	}
 	return ctx.String(http.StatusOK, "its not a banner it is dummy response")
 }
 
 func (a *Api) PatchBanner(ctx echo.Context) error {
-	const op = "Api.GetBanner"
+	const op = "Api.PatchBanner"
 
 	log := a.log.With(
 		slog.String("op", op),
@@ -98,7 +100,7 @@ func (a *Api) PatchBanner(ctx echo.Context) error {
 		Token:     "",
 		TagIds:    nil,
 		FeatureId: -1,
-		Content:   model.BannerContent{},
+		Content:   nil,
 		IsActive:  false,
 	}
 
@@ -121,11 +123,15 @@ func (a *Api) PatchBanner(ctx echo.Context) error {
 		req.IsActive,
 	)
 
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
 	return ctx.String(http.StatusOK, "its not a banner it is dummy response")
 }
 
 func (a *Api) DeleteBanner(ctx echo.Context) error {
-	const op = "Api.GetBanner"
+	const op = "Api.DeleteBanner"
 
 	log := a.log.With(
 		slog.String("op", op),
