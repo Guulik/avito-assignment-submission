@@ -1,2 +1,10 @@
 env: "local"
 port: 4444
+postgres:
+  host: "localhost"
+  SQLPort: "7777"
+  user: "postgres"
+  password: "5379"
+  DBName: "bannerDb"
+  sslMode: "disable"
+  driver: "pgx"

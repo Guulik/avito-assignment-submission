@@ -22,7 +22,16 @@ func New(log *slog.Logger, cfg *config.Config) *App {
 
 	app.echo = echo.New()
 
-	app.storage = postgresql.New()
+	db, err := postgresql.InitPostgres(cfg)
+	if err != nil {
+		log.Error("failed to connect to PostgresSQL", err)
+	}
+	err = postgresql.CreateTable(db)
+	if err != nil {
+		log.Error("failed to connect to create table in DB", err)
+	}
+
+	app.storage = postgresql.New(log, db)
 
 	app.svc = service.New(log, app.storage)
 

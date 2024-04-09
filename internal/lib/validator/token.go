@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"Avito_trainee_assignment/internal/config/constants"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 )
@@ -11,13 +12,9 @@ var (
 	//ErrNotUser  = errors.New("token does not belongs to user")
 )
 
-const (
-	secretKey = "guulik"
-)
-
 func CheckAdmin(token string) error {
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
+		return []byte(constants.SecretKey), nil
 	})
 
 	if err != nil {
@@ -35,7 +32,7 @@ func CheckAdmin(token string) error {
 
 func Authorize(token string) error {
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
+		return []byte(constants.SecretKey), nil
 	})
 	if err != nil {
 		return err

@@ -12,11 +12,14 @@ var (
 )
 
 type BannerStorage interface {
-	UserBanner(
+	UserBannerDB(
 		featureId int,
 		tagId int,
-		lastRevision bool,
-	) (*model.Banner, error)
+	) ([]byte, error)
+	UserBannerCached(
+		featureId int,
+		tagId int,
+	) ([]byte, error)
 	Banners(
 		featureId int,
 		tagIg int,
@@ -26,14 +29,14 @@ type BannerStorage interface {
 	Save(
 		featureId int,
 		tagsId []int,
-		content map[string]interface{},
+		content []byte,
 		isActive bool,
 	) (int, error)
 	Patch(
 		bannerId int,
 		tagsId []int,
 		featureId int,
-		content map[string]interface{},
+		content []byte,
 		isActive bool,
 	) error
 	Delete(bannerId int) error

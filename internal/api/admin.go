@@ -3,8 +3,9 @@ package api
 import (
 	"Avito_trainee_assignment/internal/domain/request"
 	"Avito_trainee_assignment/internal/lib/binder"
-	"Avito_trainee_assignment/internal/lib/jwt/validator"
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
+	"Avito_trainee_assignment/internal/lib/validator"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"log/slog"
 	"net/http"
@@ -16,7 +17,7 @@ func (a *Api) GetBanner(ctx echo.Context) error {
 	log := a.log.With(
 		slog.String("op", op),
 	)
-
+	//default empty request values
 	req := request.GetRequest{
 		Token:     "",
 		FeatureId: -1,
@@ -55,7 +56,7 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 	log := a.log.With(
 		slog.String("op", op),
 	)
-
+	//default empty request values
 	req := request.CreateRequest{
 		Token:     "",
 		TagIds:    nil,
@@ -74,8 +75,12 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 		a.log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusForbidden, err)
 	}
+	if err = validator.CheckPostRequest(req, true); err != nil {
+		a.log.Error("incorrect request", sl.Err(err))
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
 
-	_, err = a.svc.CreateBanner(
+	bannerId, err := a.svc.CreateBanner(
 		req.FeatureId,
 		req.TagIds,
 		req.Content,
@@ -83,9 +88,10 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 	)
 
 	if err != nil {
-		return ctx.String(http.StatusOK, err.Error())
+		return ctx.String(http.StatusInternalServerError, err.Error())
 	}
-	return ctx.String(http.StatusOK, "its not a banner it is dummy response")
+
+	return ctx.String(http.StatusOK, fmt.Sprintf("created banner with ID = %v", bannerId))
 }
 
 func (a *Api) PatchBanner(ctx echo.Context) error {
@@ -94,7 +100,7 @@ func (a *Api) PatchBanner(ctx echo.Context) error {
 	log := a.log.With(
 		slog.String("op", op),
 	)
-
+	//default empty request values
 	req := request.UpdateRequest{
 		BannerId:  -1,
 		Token:     "",
@@ -136,7 +142,7 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 	log := a.log.With(
 		slog.String("op", op),
 	)
-
+	//default empty request values
 	req := request.DeleteRequest{
 		BannerId: -1,
 		Token:    "",
@@ -151,6 +157,10 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 	if err = validator.CheckAdmin(req.Token); err != nil {
 		a.log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusForbidden, err)
+	}
+	if err = validator.CheckDeleteRequest(req); err != nil {
+		a.log.Error("incorrect request", sl.Err(err))
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	err = a.svc.DeleteBanner(

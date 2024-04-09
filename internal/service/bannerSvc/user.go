@@ -2,7 +2,7 @@ package bannerSvc
 
 import (
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
-	"fmt"
+	"encoding/json"
 	"log/slog"
 )
 
@@ -13,18 +13,18 @@ func (s *Service) GetUserBanner(featureId int, tagId int, lastRevision bool) (ma
 		slog.String("op", op),
 	)
 
-	banner, err := s.storage.UserBanner(featureId, tagId, lastRevision)
+	bannerJSON, err := s.storage.UserBannerDB(featureId, tagId)
 	if err != nil {
-		log.Error("failed to get banner for user", sl.Err(err))
+		log.Error("failed to get bannerJSON for user", sl.Err(err))
 		return nil, err
 	}
 
-	//test_banner := model.Banner{ID: 1, FeatureId: 45, TagIds: []int32{5, 12, 244}}
-	if !banner.IsActive {
-		log.Warn("attempt to get inactive banner")
-		return nil, fmt.Errorf("banner {id:%d, featureId:%d, tagIds:%v} is inactive",
-			banner.ID, banner.FeatureId, banner.TagIds)
+	var content interface{}
+	err = json.Unmarshal(bannerJSON, &content)
+	if err != nil {
+		log.Error("failed to unmarshal content from banner", sl.Err(err))
+		return nil, err
 	}
 
-	return banner.Content, nil
+	return content.(map[string]interface{}), nil
 }

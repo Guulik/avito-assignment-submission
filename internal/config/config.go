@@ -6,8 +6,19 @@ import (
 )
 
 type Config struct {
-	Env  string `yaml:"env"`
-	Port int    `yaml:"port"`
+	Env      string `yaml:"env"`
+	Port     int    `yaml:"port"`
+	Postgres Postgres
+}
+
+type Postgres struct {
+	Host     string `yaml:"host"`
+	SQLPort  string `yaml:"SQLPort"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	DBName   string `yaml:"DBName"`
+	SslMode  string `yaml:"sslMode"`
+	Driver   string `yaml:"driver"`
 }
 
 func MustLoad() *Config {

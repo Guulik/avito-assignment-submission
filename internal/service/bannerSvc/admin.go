@@ -3,6 +3,7 @@ package bannerSvc
 import (
 	"Avito_trainee_assignment/internal/domain/model"
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
+	"encoding/json"
 	"log/slog"
 )
 
@@ -27,13 +28,18 @@ func (s *Service) CreateBanner(featureId int, tagIds []int, content map[string]i
 	log := s.log.With(
 		slog.String("op", op),
 	)
-	_, err := s.storage.Save(featureId, tagIds, content, isActive)
+	SQLContent, err := json.Marshal(content)
+	if err != nil {
+		log.Error("failed to Marshal data", sl.Err(err))
+		return -1, err
+	}
+
+	bannerId, err := s.storage.Save(featureId, tagIds, SQLContent, isActive)
 	if err != nil {
 		log.Error("failed to create banner", sl.Err(err))
 		return -1, err
 	}
-	//TODO: return banner id instead of -1
-	return -1, nil
+	return bannerId, nil
 }
 
 func (s *Service) UpdateBanner(bannerId int, tagIds []int, featureId int, content map[string]interface{}, isActive bool) error {
@@ -42,7 +48,14 @@ func (s *Service) UpdateBanner(bannerId int, tagIds []int, featureId int, conten
 	log := s.log.With(
 		slog.String("op", op),
 	)
-	err := s.storage.Patch(bannerId, tagIds, featureId, content, isActive)
+
+	SQLContent, err := json.Marshal(content)
+	if err != nil {
+		log.Error("failed to Marshal data", sl.Err(err))
+		return err
+	}
+
+	err = s.storage.Patch(bannerId, tagIds, featureId, SQLContent, isActive)
 	if err != nil {
 		log.Error("failed to update banner", sl.Err(err))
 		return err
