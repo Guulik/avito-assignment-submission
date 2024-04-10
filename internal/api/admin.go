@@ -28,7 +28,7 @@ func (a *Api) GetBanner(ctx echo.Context) error {
 
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	log.Info(sl.Req(req))
 
@@ -37,7 +37,7 @@ func (a *Api) GetBanner(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, err)
 	}
 
-	_, err = a.svc.GetBanners(
+	banners, err := a.svc.GetBanners(
 		req.FeatureId,
 		req.TagId,
 		req.Limit,
@@ -45,9 +45,9 @@ func (a *Api) GetBanner(ctx echo.Context) error {
 	)
 
 	if err != nil {
-		return ctx.String(http.StatusOK, err.Error())
+		return err
 	}
-	return ctx.String(http.StatusOK, "its not a banner it is dummy response")
+	return ctx.JSON(http.StatusOK, banners)
 }
 
 func (a *Api) CreateBanner(ctx echo.Context) error {
@@ -62,7 +62,7 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 		TagIds:    nil,
 		FeatureId: -1,
 		Content:   nil,
-		IsActive:  false,
+		IsActive:  true,
 	}
 
 	err := binder.BindReq(log, ctx, &req)
@@ -88,10 +88,10 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 	)
 
 	if err != nil {
-		return ctx.String(http.StatusInternalServerError, err.Error())
+		return err
 	}
 
-	return ctx.String(http.StatusOK, fmt.Sprintf("created banner with ID = %v", bannerId))
+	return ctx.JSON(http.StatusCreated, fmt.Sprintf("created banner with ID = %v", bannerId))
 }
 
 func (a *Api) PatchBanner(ctx echo.Context) error {
@@ -128,12 +128,11 @@ func (a *Api) PatchBanner(ctx echo.Context) error {
 		req.Content,
 		req.IsActive,
 	)
-
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return err
 	}
 
-	return ctx.String(http.StatusOK, "its not a banner it is dummy response")
+	return ctx.String(http.StatusOK, fmt.Sprintf("banner with Id %v was successfully updated", req.BannerId))
 }
 
 func (a *Api) DeleteBanner(ctx echo.Context) error {
@@ -166,6 +165,9 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 	err = a.svc.DeleteBanner(
 		req.BannerId,
 	)
+	if err != nil {
+		return err
+	}
 
-	return ctx.String(http.StatusOK, "its not a banner it is dummy response")
+	return ctx.JSON(http.StatusNoContent, fmt.Sprintf("banner with Id %v was successfully deleted", req.BannerId))
 }

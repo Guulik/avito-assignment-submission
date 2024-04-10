@@ -5,7 +5,6 @@ import (
 	"Avito_trainee_assignment/internal/lib/binder"
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
 	"Avito_trainee_assignment/internal/lib/validator"
-	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"log/slog"
 	"net/http"
@@ -37,7 +36,7 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Пользователь не авторизован")
 	}
 	if err = validator.CheckGetUserRequest(req); err != nil {
-		a.log.Error("incorrect request", sl.Err(err))
+		log.Error("incorrect request", sl.Err(err))
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
@@ -46,16 +45,10 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 		req.TagId,
 		req.LastRevision,
 	)
-
 	if err != nil {
 		log.Error("failed to get banner for user", sl.Err(err))
-		return echo.NewHTTPError(http.StatusNotFound, "Баннер для пользователя не найден")
-	}
-	jsonBanner, err := json.Marshal(banner)
-	if err != nil {
-		log.Error("failed to marshal content", sl.Err(err))
-		return echo.NewHTTPError(http.StatusInternalServerError, "Внутренняя ошибка сервера")
+		return err
 	}
 
-	return ctx.JSON(http.StatusOK, jsonBanner)
+	return ctx.JSON(http.StatusOK, banner)
 }

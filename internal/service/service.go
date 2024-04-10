@@ -6,30 +6,30 @@ import (
 
 type BannerService interface {
 	GetUserBanner(
-		featureId int,
-		tagId int,
+		featureId int64,
+		tagId int64,
 		lastRevision bool,
 	) (map[string]interface{}, error)
 	GetBanners(
-		featureId int,
-		tagId int,
-		limit int,
-		offset int,
-	) (*model.Banner, error)
+		featureId int64,
+		tagId int64,
+		limit int64,
+		offset int64,
+	) ([]model.Banner, error)
 	CreateBanner(
-		featureId int,
-		tagIds []int,
+		featureId int64,
+		tagIds []int64,
 		content map[string]interface{},
 		isActive bool,
-	) (int, error)
+	) (int64, error)
 	UpdateBanner(
-		bannerId int,
-		tagIds []int,
-		featureId int,
+		bannerId int64,
+		tagIds []int64,
+		featureId int64,
 		content map[string]interface{},
 		isActive bool,
 	) error
 	DeleteBanner(
-		bannerId int,
+		bannerId int64,
 	) error
 }

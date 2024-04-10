@@ -13,31 +13,35 @@ var (
 
 type BannerStorage interface {
 	UserBannerDB(
-		featureId int,
-		tagId int,
+		featureId int64,
+		tagId int64,
 	) ([]byte, error)
 	UserBannerCached(
-		featureId int,
-		tagId int,
+		featureId int64,
+		tagId int64,
 	) ([]byte, error)
 	Banners(
-		featureId int,
-		tagIg int,
-		limit int,
-		offset int,
-	) (*model.Banner, error)
+		limit int64,
+		offset int64,
+	) ([]model.BannerDB, error)
+	FilteredBanners(
+		featureId int64,
+		tagIg int64,
+		limit int64,
+		offset int64,
+	) ([]model.BannerDB, error)
 	Save(
-		featureId int,
-		tagsId []int,
+		featureId int64,
+		tagsId []int64,
 		content []byte,
 		isActive bool,
-	) (int, error)
+	) (int64, error)
 	Patch(
-		bannerId int,
-		tagsId []int,
-		featureId int,
+		bannerId int64,
+		tagsId []int64,
+		featureId int64,
 		content []byte,
 		isActive bool,
 	) error
-	Delete(bannerId int) error
+	Delete(bannerId int64) error
 }
