@@ -25,7 +25,9 @@ func CreateTable(db *sqlx.DB) error {
 			is_active  		boolean 	 not null default true,
 			created_at      timestamp	 not null,
 			updated_at      timestamp	 not null
-		);`
+		);
+		CREATE UNIQUE INDEX IF NOT EXISTS "feature_tag_combination" ON banner (feature_id, tag_ids);
+		`
 	)
 	if _, err := db.Exec(query); err != nil {
 		return err

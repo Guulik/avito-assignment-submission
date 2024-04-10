@@ -58,11 +58,6 @@ func (s Storage) UserBannerDB(featureId int64, tagId int64) ([]byte, error) {
 	return content, nil
 }
 
-func (s Storage) UserBannerCached(featureId int64, tagId int64) ([]byte, error) {
-	//TODO implement me
-	return nil, storage.ErrNotFound
-}
-
 func (s Storage) Banners(limit int64, offset int64) ([]model.BannerDB, error) {
 	const op = "Repo.Banners"
 	log := s.log.With(

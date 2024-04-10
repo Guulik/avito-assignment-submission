@@ -16,10 +16,6 @@ type BannerStorage interface {
 		featureId int64,
 		tagId int64,
 	) ([]byte, error)
-	UserBannerCached(
-		featureId int64,
-		tagId int64,
-	) ([]byte, error)
 	Banners(
 		limit int64,
 		offset int64,
@@ -44,4 +40,16 @@ type BannerStorage interface {
 		isActive bool,
 	) error
 	Delete(bannerId int64) error
+}
+
+type BannerCache interface {
+	GetBannerCached(
+		featureId int64,
+		tagId int64,
+	) ([]byte, error)
+	SetBannerCache(
+		featureId int64,
+		tagId int64,
+		content []byte,
+	) error
 }

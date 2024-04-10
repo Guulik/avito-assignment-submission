@@ -5,6 +5,7 @@ import (
 	"Avito_trainee_assignment/internal/config"
 	service "Avito_trainee_assignment/internal/service/bannerSvc"
 	"Avito_trainee_assignment/internal/storage/postgresql"
+	"Avito_trainee_assignment/internal/storage/redis"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"log/slog"
@@ -15,6 +16,7 @@ type App struct {
 	svc     *service.Service
 	storage *postgresql.Storage
 	echo    *echo.Echo
+	cache   *redis.Cache
 }
 
 func New(log *slog.Logger, cfg *config.Config) *App {
@@ -31,9 +33,13 @@ func New(log *slog.Logger, cfg *config.Config) *App {
 		log.Error("failed to connect to create table in DB", err)
 	}
 
+	rds := redis.InitRedis()
+
 	app.storage = postgresql.New(log, db)
 
-	app.svc = service.New(log, app.storage)
+	app.cache = redis.New(log, rds)
+
+	app.svc = service.New(log, app.storage, app.cache)
 
 	app.api = api.New(log, app.svc)
 

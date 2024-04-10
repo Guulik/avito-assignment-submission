@@ -14,10 +14,29 @@ func (s *Service) GetUserBanner(featureId int64, tagId int64, lastRevision bool)
 	log := s.log.With(
 		slog.String("op", op),
 	)
-
-	bannerJSON, err := s.storage.UserBannerDB(featureId, tagId)
-	if err != nil {
-		return nil, err
+	var (
+		bannerJSON []byte
+		err        error
+	)
+	if lastRevision {
+		log.Info("getting from DB")
+		bannerJSON, err = s.storage.UserBannerDB(featureId, tagId)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		log.Info("getting from cache")
+		bannerJSON, err = s.cache.GetBannerCached(featureId, tagId)
+		if err != nil {
+			bannerJSON, err = s.storage.UserBannerDB(featureId, tagId)
+			if err != nil {
+				return nil, err
+			}
+			err = s.cache.SetBannerCache(featureId, tagId, bannerJSON)
+			if err != nil {
+				log.Error(sl.Err(err).String())
+			}
+		}
 	}
 
 	var content interface{}
