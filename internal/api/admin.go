@@ -75,7 +75,7 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 		a.log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusForbidden, err)
 	}
-	if err = validator.CheckPostRequest(req, true); err != nil {
+	if err = validator.CheckPostRequest(&req, true); err != nil {
 		a.log.Error("incorrect request", sl.Err(err))
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
@@ -91,7 +91,7 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusCreated, fmt.Sprintf("created banner with ID = %v", bannerId))
+	return ctx.String(http.StatusCreated, fmt.Sprintf("created banner with ID = %v", bannerId))
 }
 
 func (a *Api) PatchBanner(ctx echo.Context) error {
@@ -119,6 +119,10 @@ func (a *Api) PatchBanner(ctx echo.Context) error {
 	if err = validator.CheckAdmin(req.Token); err != nil {
 		a.log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusForbidden, err)
+	}
+	if err = validator.CheckUpdateRequest(&req, true); err != nil {
+		a.log.Error("incorrect request", sl.Err(err))
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	err = a.svc.UpdateBanner(
@@ -157,7 +161,7 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 		a.log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusForbidden, err)
 	}
-	if err = validator.CheckDeleteRequest(req); err != nil {
+	if err = validator.CheckDeleteRequest(&req); err != nil {
 		a.log.Error("incorrect request", sl.Err(err))
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
@@ -169,5 +173,5 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusNoContent, fmt.Sprintf("banner with Id %v was successfully deleted", req.BannerId))
+	return ctx.String(http.StatusNoContent, fmt.Sprintf("banner with Id %v was successfully deleted", req.BannerId))
 }

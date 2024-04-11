@@ -1,5 +1,6 @@
 env: "local"
 port: 4444
+timeout: 1m
 postgres:
   host: "localhost"
   SQLPort: "7777"
@@ -8,3 +9,8 @@ postgres:
   DBName: "bannerDb"
   sslMode: "disable"
   driver: "pgx"
+redis:
+  address: "localhost:6379"
+  password: "5379"
+  DB: 0
+  TTLMinutes: 5m

@@ -6,6 +6,7 @@ import (
 	service "Avito_trainee_assignment/internal/service/bannerSvc"
 	"Avito_trainee_assignment/internal/storage/postgresql"
 	"Avito_trainee_assignment/internal/storage/redis"
+	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"log/slog"
@@ -33,17 +34,17 @@ func New(log *slog.Logger, cfg *config.Config) *App {
 		log.Error("failed to connect to create table in DB", err)
 	}
 
-	rds := redis.InitRedis()
+	rds := redis.InitRedis(cfg)
 
 	app.storage = postgresql.New(log, db)
 
-	app.cache = redis.New(log, rds)
+	app.cache = redis.New(log, rds, cfg)
 
 	app.svc = service.New(log, app.storage, app.cache)
 
 	app.api = api.New(log, app.svc)
 
-	app.echo.GET("/user_banner/get", app.api.GetUserBanner)
+	app.echo.GET("/user_banner", app.api.GetUserBanner)
 	app.echo.GET("/banner", app.api.GetBanner)
 	app.echo.POST("/banner", app.api.CreateBanner)
 	app.echo.PATCH("/banner/:id", app.api.PatchBanner)
@@ -66,4 +67,15 @@ func (a *App) MustRun() {
 	if err := a.Run(); err != nil {
 		panic(err)
 	}
+}
+
+func (a *App) Stop() error {
+
+	fmt.Println("stopping server..." + " op = app.Stop")
+	ctx := context.Background()
+	if err := a.echo.Shutdown(ctx); err != nil {
+		fmt.Println("failed to gracefully stop server")
+		return err
+	}
+	return nil
 }

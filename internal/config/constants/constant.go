@@ -1,7 +1,8 @@
 package constants
 
 const (
-	BannerTable = "banner"
+	BannerTable           = "banner"
+	BannerDefinitionTable = "banner_definition"
 )
 
 const (

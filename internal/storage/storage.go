@@ -2,13 +2,6 @@ package storage
 
 import (
 	"Avito_trainee_assignment/internal/domain/model"
-	"errors"
-)
-
-var (
-	ErrNotFound   = errors.New("banner not found in DB")
-	ErrSaveFail   = errors.New("failed to write banner to DB")
-	ErrDeleteFail = errors.New("failed to remove banner from DB")
 )
 
 type BannerStorage interface {
@@ -39,7 +32,9 @@ type BannerStorage interface {
 		content []byte,
 		isActive bool,
 	) error
-	Delete(bannerId int64) error
+	Delete(
+		bannerId int64,
+	) error
 }
 
 type BannerCache interface {
@@ -51,5 +46,8 @@ type BannerCache interface {
 		featureId int64,
 		tagId int64,
 		content []byte,
+	) error
+	DeleteBannerCache(
+		bannerId int64,
 	) error
 }

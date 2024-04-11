@@ -1,14 +1,15 @@
 package redis
 
 import (
+	"Avito_trainee_assignment/internal/config"
 	"github.com/redis/go-redis/v9"
 )
 
-func InitRedis() *redis.Client {
+func InitRedis(c *config.Config) *redis.Client {
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "5379",
-		DB:       0,
+		Addr:     c.Redis.Address,
+		Password: c.Redis.Password,
+		DB:       c.Redis.DB,
 	})
 	return client
 }

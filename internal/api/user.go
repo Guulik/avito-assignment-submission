@@ -35,7 +35,7 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 		log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusUnauthorized, "Пользователь не авторизован")
 	}
-	if err = validator.CheckGetUserRequest(req); err != nil {
+	if err = validator.CheckGetUserRequest(&req); err != nil {
 		log.Error("incorrect request", sl.Err(err))
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
@@ -46,7 +46,6 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 		req.LastRevision,
 	)
 	if err != nil {
-		log.Error("failed to get banner for user", sl.Err(err))
 		return err
 	}
 

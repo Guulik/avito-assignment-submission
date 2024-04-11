@@ -3,12 +3,15 @@ package config
 import (
 	"github.com/ilyakaznacheev/cleanenv"
 	"os"
+	"time"
 )
 
 type Config struct {
-	Env      string `yaml:"env"`
-	Port     int    `yaml:"port"`
+	Env      string        `yaml:"env"`
+	Port     int           `yaml:"port"`
+	Timeout  time.Duration `yaml:"timeout"`
 	Postgres Postgres
+	Redis    Redis
 }
 
 type Postgres struct {
@@ -21,19 +24,35 @@ type Postgres struct {
 	Driver   string `yaml:"driver"`
 }
 
+type Redis struct {
+	Address    string        `yaml:"address"`
+	Password   string        `yaml:"password"`
+	DB         int           `yaml:"DB"`
+	TTLMinutes time.Duration `yaml:"TTLMinutes"`
+}
+
 func MustLoad() *Config {
 	configPath := fetchConfigPath()
+	if configPath == "" {
+		panic("config path is empty")
+	}
 
+	return MustLoadPath(configPath)
+}
+
+func MustLoadPath(configPath string) *Config {
+	// check if file exists
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		panic("config file does not exist: " + configPath)
 	}
-	var config Config
 
-	if err := cleanenv.ReadConfig(configPath, &config); err != nil {
+	var cfg Config
+
+	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
 		panic("cannot read config: " + err.Error())
 	}
 
-	return &config
+	return &cfg
 }
 
 func fetchConfigPath() string {

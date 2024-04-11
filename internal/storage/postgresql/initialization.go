@@ -26,10 +26,24 @@ func CreateTable(db *sqlx.DB) error {
 			created_at      timestamp	 not null,
 			updated_at      timestamp	 not null
 		);
-		CREATE UNIQUE INDEX IF NOT EXISTS "feature_tag_combination" ON banner (feature_id, tag_ids);
+		CREATE INDEX IF NOT EXISTS index_id ON banner (banner_id);
+		`
+		queryRelation = `
+		CREATE TABLE IF NOT EXISTS "banner_definition" (
+		banner_id BIGINT NOT NULL,
+		feature_id BIGINT NOT NULL,
+		tag_id BIGINT NOT NULL,
+		PRIMARY KEY (feature_id, tag_id),
+		FOREIGN KEY (banner_id) REFERENCES "banner" (banner_id)
+		);
+
+		CREATE UNIQUE INDEX IF NOT EXISTS index_feature_tag ON banner_definition (feature_id, tag_id);
 		`
 	)
 	if _, err := db.Exec(query); err != nil {
+		return err
+	}
+	if _, err := db.Exec(queryRelation); err != nil {
 		return err
 	}
 

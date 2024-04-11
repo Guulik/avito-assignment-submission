@@ -31,6 +31,10 @@ func New(log *slog.Logger, db *sqlx.DB) *Storage {
 	}
 }
 
+const (
+	SQLDuplicateError = "23505"
+)
+
 func (s Storage) UserBannerDB(featureId int64, tagId int64) ([]byte, error) {
 	const op = "Repo.UserBannerDB"
 
@@ -40,10 +44,13 @@ func (s Storage) UserBannerDB(featureId int64, tagId int64) ([]byte, error) {
 	var (
 		content []byte
 		query   = fmt.Sprintf(`
-		SELECT content
-		FROM %s 
-		WHERE feature_id = $1 AND $2 = ANY (tag_ids) AND is_active = true;`,
-			constants.BannerTable)
+		SELECT b.content
+		FROM %s b
+		JOIN %s bdef ON bdef.banner_id = b.banner_id
+		WHERE bdef.feature_id = $1 AND $2 = bdef.tag_id AND b.is_active = true;`,
+			constants.BannerTable,
+			constants.BannerDefinitionTable,
+		)
 
 		values = []any{featureId, tagId}
 	)
@@ -96,18 +103,21 @@ func (s Storage) FilteredBanners(featureId int64, tagIg int64, limit int64, offs
 		banners []model.BannerDB
 
 		query = fmt.Sprintf(`
-		SELECT *
-		FROM %s 
-		WHERE`,
-			constants.BannerTable)
+		SELECT b.*
+		FROM %s b
+		JOIN %s bdef ON bdef.banner_id = b.banner_id
+		WHERE 
+		`,
+			constants.BannerTable,
+			constants.BannerDefinitionTable)
 	)
 	switch {
 	case featureId > -1 && tagIg > -1:
-		query = query + fmt.Sprintf(" feature_id=%d AND %d=ANY(tag_ids)", featureId, tagIg)
+		query = query + fmt.Sprintf(" bdef.feature_id=%d AND %d=bdef.tag_id", featureId, tagIg)
 	case featureId > -1:
-		query = query + fmt.Sprintf(" feature_id=%d", featureId)
+		query = query + fmt.Sprintf(" bdef.feature_id=%d", featureId)
 	case tagIg > -1:
-		query = query + fmt.Sprintf(" %d=ANY(tag_ids)", tagIg)
+		query = query + fmt.Sprintf(" %d=bdef.tag_id", tagIg)
 	}
 	if limit > -1 {
 		query = query + fmt.Sprintf(" LIMIT %d", limit)
@@ -115,6 +125,7 @@ func (s Storage) FilteredBanners(featureId int64, tagIg int64, limit int64, offs
 	if offset > -1 {
 		query = query + fmt.Sprintf(" OFFSET %d", offset)
 	}
+	query = query + " GROUP BY b.banner_id"
 	log.Info(fmt.Sprintf("query = %v", query))
 
 	err := s.db.Select(&banners, query)
@@ -134,9 +145,23 @@ func (s Storage) Save(featureId int64, tagIds []int64, content []byte, isActive 
 
 	var (
 		query = fmt.Sprintf(`
-		INSERT INTO %s (feature_id, content, is_active, tag_ids, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6) RETURNING banner_id`,
-			constants.BannerTable)
+		WITH inserted_banner AS (
+			INSERT INTO %s (feature_id, content, is_active, tag_ids, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6)
+			RETURNING banner_id
+		)
+		INSERT INTO %s (banner_id, feature_id, tag_id)
+		SELECT
+			banner_id,
+			$1 AS feature_id,
+			tag_id
+		FROM
+			inserted_banner
+		CROSS JOIN
+			UNNEST($4::bigint[]) AS tag_id
+		RETURNING banner_id;`,
+			constants.BannerTable,
+			constants.BannerDefinitionTable)
 
 		values = []any{featureId, content, isActive,
 			"{" + strings.Trim(strings.Replace(fmt.Sprint(tagIds), " ", ", ", -1), "[]") + "}",
@@ -158,6 +183,11 @@ func (s Storage) Save(featureId int64, tagIds []int64, content []byte, isActive 
 	err = row.Scan(&id)
 
 	if err != nil {
+		//TODO: find way to get sqlerror code explicitly
+		if strings.Contains(err.Error(), "23505") {
+			return -1, echo.NewHTTPError(http.StatusBadRequest,
+				"Теги либо фича баннера пересекаются с уже существующим")
+		}
 		log.Error("failed to scan row", sl.Err(err))
 		return -1, echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
@@ -185,12 +215,57 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 			constants.BannerTable)
 
 		queryUpdateFeatureID = fmt.Sprintf(`
-		UPDATE %s SET feature_id=$2 WHERE banner_id=$1;`,
-			constants.BannerTable)
+		WITH updated_banner AS (
+			UPDATE %s
+			SET 
+				feature_id = $2
+			WHERE 
+				banner_id = $1
+			RETURNING banner_id
+		)
+		UPDATE 
+			%s br
+		SET 
+			feature_id = $2
+		FROM 
+			updated_banner ub
+		WHERE 
+			br.banner_id = ub.banner_id;
+		`,
+			constants.BannerTable,
+			constants.BannerDefinitionTable,
+		)
+
+		queryDeleteTagIDs = fmt.Sprintf(
+			`
+			DELETE FROM %s WHERE banner_id = $1;
+			`,
+			constants.BannerDefinitionTable,
+		)
 
 		queryUpdateTagIDs = fmt.Sprintf(`
-		UPDATE %s SET tag_ids=$2 WHERE banner_id=$1;`,
-			constants.BannerTable)
+		WITH updated_banner AS (
+			UPDATE %s
+			SET 
+				tag_ids = $2
+			WHERE 
+				banner_id = $1
+			RETURNING banner_id, feature_id
+		)
+		INSERT INTO 
+			%s (banner_id, feature_id, tag_id)
+		SELECT 
+			ub.banner_id,
+			ub.feature_id,
+			tag_id
+		FROM 
+			updated_banner ub
+		CROSS JOIN 
+			UNNEST($2::bigint[]) AS tag_id;
+		`,
+			constants.BannerTable,
+			constants.BannerDefinitionTable,
+		)
 
 		queryUpdateIsActive = fmt.Sprintf(`
 		UPDATE %s SET is_active=$2 WHERE banner_id=$1;`,
@@ -248,6 +323,7 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 	if !slices.Equal(tagIds, bannerTags) {
 		//TODO: delete this log
 		log.Info("updating tags")
+		_, err = tx.Exec(queryDeleteTagIDs, bannerId)
 		_, err = tx.Exec(
 			queryUpdateTagIDs,
 			bannerId,
@@ -296,13 +372,15 @@ func (s Storage) Delete(bannerId int64) error {
 		slog.String("op", op),
 	)
 	var (
-		query = fmt.Sprintf(`
-		DELETE 
-		FROM %s 
-		WHERE banner_id = $1;
+		queryDeleteBanner = fmt.Sprintf(`
+		DELETE FROM %s WHERE banner_id = $1;
 		`, constants.BannerTable)
+
+		queryDeleteBannerDefinition = fmt.Sprintf(`
+		DELETE FROM %s WHERE banner_id = $1;
+		`, constants.BannerDefinitionTable)
 	)
-	log.Info(fmt.Sprintf("sql query: %v", query))
+	log.Info(fmt.Sprintf("sql queryDeleteBanner: %v", queryDeleteBanner))
 	log.Info("beginning transaction")
 
 	tx, err := s.db.Begin()
@@ -312,13 +390,27 @@ func (s Storage) Delete(bannerId int64) error {
 	}
 	defer tx.Rollback()
 
-	ct, err := tx.Exec(query, bannerId)
+	var affect int64
+
+	log.Info("trying to delete related banner definition")
+	ct, err := tx.Exec(queryDeleteBannerDefinition, bannerId)
 	if err != nil {
 		log.Error("failed to delete banner", sl.Err(err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+	if affect, err = ct.RowsAffected(); err != nil {
+		return err
+	}
+	if affect < 1 {
+		return echo.NewHTTPError(http.StatusNotFound, "nothing to delete")
+	}
 
-	var affect int64
+	log.Info("trying to delete banner")
+	ct, err = tx.Exec(queryDeleteBanner, bannerId)
+	if err != nil {
+		log.Error("failed to delete banner", sl.Err(err))
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
 	if affect, err = ct.RowsAffected(); err != nil {
 		return err
 	}
