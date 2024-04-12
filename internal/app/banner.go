@@ -1,8 +1,8 @@
 package app
 
 import (
+	"Avito_trainee_assignment/config"
 	"Avito_trainee_assignment/internal/api"
-	"Avito_trainee_assignment/internal/config"
 	service "Avito_trainee_assignment/internal/service/bannerSvc"
 	"Avito_trainee_assignment/internal/storage/postgresql"
 	"Avito_trainee_assignment/internal/storage/redis"

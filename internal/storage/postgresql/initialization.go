@@ -1,7 +1,7 @@
 package postgresql
 
 import (
-	"Avito_trainee_assignment/internal/config"
+	"Avito_trainee_assignment/config"
 	"fmt"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"

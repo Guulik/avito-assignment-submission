@@ -1,11 +1,13 @@
 package client
 
 import (
-	"Avito_trainee_assignment/internal/config"
+	"Avito_trainee_assignment/config"
 	"context"
 	"io"
+	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"testing"
 )
 
@@ -15,14 +17,17 @@ type Suite struct {
 	Client *http.Client
 }
 
-const (
+var (
 	BaseURL   = "http://localhost:4444"
-	userToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
-		"eyJlbWFpbCI6ImR1bW15QHBpcC5jb20iLCJuYW1lIjoiVHVjayIsImFkbWluIjp0cnVlLCJleHAiOjUxMjUyMzM0MTIyMX0." +
-		"53BBsUCuce2I5ZP98-dTKkk7iNhyWTj3j-vExwgZJQ4"
-	adminToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+	UserToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+		"eyJlbWFpbCI6ImR1bW15QHBvcC5jb3JuIiwibmFtZSI6InNpbGx5IiwiYWRtaW4iOmZhbHNlLCJleHAiOjUxMjUyMzM0MTIyMX0." +
+		"NJPL563Qey8-WqVvZ_WO-IHCxUUCDicJpmfG-CTCGAM"
+	AdminToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
 		"eyJlbWFpbCI6ImR1bW15QHBpcC5jb20iLCJuYW1lIjoiVHVjayIsImFkbWluIjp0cnVlfQ." +
 		"vT7s2Bu7Q1vf1FV86XNW26R-McbslMhnkQw7zvnltNE"
+	ExpiredToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+		"eyJlbWFpbCI6ImR1bW15QHBvcC5jb3JuIiwibmFtZSI6InNpbGx5IiwiYWRtaW4iOmZhbHNlLCJleHAiOjE3MTI3NjQ2ODF9." +
+		"N9napZzgIolAdZu7Hee9oAjRRuSR6VqcqSilRfoidnk"
 )
 
 func New(t *testing.T) (context.Context, *Suite) {
@@ -30,6 +35,8 @@ func New(t *testing.T) (context.Context, *Suite) {
 	t.Parallel()
 
 	cfg := config.MustLoadPath(configPath())
+
+	BaseURL = address(cfg)
 
 	ctx, cancelCtx := context.WithTimeout(context.Background(), cfg.Timeout)
 
@@ -49,18 +56,15 @@ func FormRequest(
 	method string,
 	url string,
 	body io.Reader,
-	admin bool,
+	token string,
 ) *http.Request {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil
 	}
 	req.Header.Add("Content-Type", "application/json")
-	if admin {
-		req.Header.Add("token", adminToken)
-	} else {
-		req.Header.Add("token", userToken)
-	}
+	req.Header.Add("token", token)
+
 	return req
 }
 
@@ -71,5 +75,9 @@ func configPath() string {
 		return v
 	}
 
-	return "../local.yaml"
+	return "../../local.yaml"
+}
+
+func address(cfg *config.Config) string {
+	return net.JoinHostPort(`http://localhost`, strconv.Itoa(cfg.Port))
 }

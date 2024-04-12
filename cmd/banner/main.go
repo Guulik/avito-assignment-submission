@@ -1,11 +1,14 @@
 package main
 
 import (
+	"Avito_trainee_assignment/config"
 	"Avito_trainee_assignment/internal/app"
-	"Avito_trainee_assignment/internal/config"
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
+	"fmt"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -20,9 +23,11 @@ func main() {
 	log := setupLogger(cfg.Env)
 
 	a := app.New(log, cfg)
-	a.MustRun()
+	go func() {
+		a.MustRun()
+	}()
 
-	/*stop := make(chan os.Signal, 1)
+	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 
 	<-stop
@@ -30,7 +35,7 @@ func main() {
 	if err := a.Stop(); err != nil {
 		fmt.Println(fmt.Errorf("failed to gracefully stop app err=%s", err))
 	}
-	fmt.Println("Gracefully stopped")*/
+	fmt.Println("Gracefully stopped")
 }
 
 func setupLogger(env string) *slog.Logger {

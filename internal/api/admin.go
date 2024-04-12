@@ -26,12 +26,17 @@ func (a *Api) GetBanner(ctx echo.Context) error {
 		Offset:    -1,
 	}
 
+	//checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	log.Info(sl.Req(req))
 
+	if err = validator.Authorize(req.Token); err != nil {
+		a.log.Error("incorrect token", sl.Err(err))
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
+	}
 	if err = validator.CheckAdmin(req.Token); err != nil {
 		a.log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusForbidden, err)
@@ -65,12 +70,17 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 		IsActive:  true,
 	}
 
+	//checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	log.Info(sl.Req(req))
 
+	if err = validator.Authorize(req.Token); err != nil {
+		a.log.Error("incorrect token", sl.Err(err))
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
+	}
 	if err = validator.CheckAdmin(req.Token); err != nil {
 		a.log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusForbidden, err)
@@ -109,13 +119,17 @@ func (a *Api) PatchBanner(ctx echo.Context) error {
 		Content:   nil,
 		IsActive:  false,
 	}
-
+	//checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	log.Info(sl.Req(req))
 
+	if err = validator.Authorize(req.Token); err != nil {
+		a.log.Error("incorrect token", sl.Err(err))
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
+	}
 	if err = validator.CheckAdmin(req.Token); err != nil {
 		a.log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusForbidden, err)
@@ -150,13 +164,17 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 		BannerId: -1,
 		Token:    "",
 	}
-
+	//checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	log.Info(sl.Req(req))
 
+	if err = validator.Authorize(req.Token); err != nil {
+		a.log.Error("incorrect token", sl.Err(err))
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
+	}
 	if err = validator.CheckAdmin(req.Token); err != nil {
 		a.log.Error("incorrect token", sl.Err(err))
 		return echo.NewHTTPError(http.StatusForbidden, err)

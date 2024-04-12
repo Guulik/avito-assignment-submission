@@ -1,13 +1,14 @@
 package validator
 
 import (
-	"Avito_trainee_assignment/internal/config/constants"
+	"Avito_trainee_assignment/internal/constants"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 )
 
 var (
 	ErrNotValid = errors.New("provided token is not valid")
+	ErrExpired  = errors.New("provided token is not valid")
 	ErrNotAdmin = errors.New("token does not belongs to admin")
 	//ErrNotUser  = errors.New("token does not belongs to user")
 )
@@ -34,6 +35,13 @@ func Authorize(token string) error {
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte(constants.SecretKey), nil
 	})
+	var ve *jwt.ValidationError
+	if errors.As(err, &ve) {
+		if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			return ErrExpired
+		}
+	}
+
 	if err != nil {
 		return err
 	}

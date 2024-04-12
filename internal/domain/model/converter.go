@@ -48,10 +48,7 @@ func ParseIntArrayFromString(str string) ([]int64, error) {
 	var result []int64
 
 	for _, part := range parts {
-		val, err := strconv.ParseInt(part, 10, 32)
-		if err != nil {
-			return nil, err
-		}
+		val, _ := strconv.ParseInt(part, 10, 64)
 		result = append(result, val)
 	}
 

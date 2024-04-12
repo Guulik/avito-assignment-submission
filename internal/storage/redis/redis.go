@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"Avito_trainee_assignment/internal/config"
+	"Avito_trainee_assignment/config"
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
 	"Avito_trainee_assignment/internal/storage"
 	"context"

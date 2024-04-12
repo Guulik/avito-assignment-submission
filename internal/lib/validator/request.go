@@ -4,9 +4,10 @@ import (
 	"Avito_trainee_assignment/internal/domain/request"
 	"errors"
 	"fmt"
+	"reflect"
 )
 
-func CheckGetUserRequest(req *request.GetUserRequest) error {
+func CheckGetRequest(req *request.GetUserRequest) error {
 	if req.FeatureId < 0 {
 		return errors.New("incorrect featureId")
 	}
@@ -16,18 +17,24 @@ func CheckGetUserRequest(req *request.GetUserRequest) error {
 	return nil
 }
 
-// CheckPostRequest checks if featureId>-1,len(tagIds[])>0,
-// optionally if the second parameter is true a full tag revision(all(tagId) >-1) and
-// removing duplicates from tagIds can be performed
+// CheckPostRequest checks if featureId>-1,len(tagIds[])>0, and
+// removing duplicates from tagIds
+// optionally if the second parameter is true a full tag revision(all(tagId) >-1) can be performed
 func CheckPostRequest(req *request.CreateRequest, advanced bool) error {
+	if reflect.TypeOf(req.FeatureId) != reflect.TypeOf(int64(0)) {
+		return errors.New("incorrect featureId type")
+	}
+	if reflect.TypeOf(req.TagIds) != reflect.TypeOf([]int64{}) {
+		return errors.New("incorrect tagIds type")
+	}
 	if req.FeatureId < 0 {
-		return errors.New("incorrect featureId")
+		return errors.New("incorrect featureId: negative")
 	}
 	if len(req.TagIds) == 0 || req.TagIds == nil {
 		return errors.New("incorrect tags: tags cannot be empty")
 	}
+	req.TagIds = removeDuplicates(req.TagIds)
 	if advanced {
-		req.TagIds = removeDuplicates(req.TagIds)
 		for i, tag := range req.TagIds {
 			if tag < 0 {
 				return errors.New(fmt.Sprintf("incorrect tagId #%v", i))
@@ -37,12 +44,18 @@ func CheckPostRequest(req *request.CreateRequest, advanced bool) error {
 	return nil
 }
 
-// CheckUpdateRequest checks if bannerId>1, featureId>-1,len(tagIds[])>0,
-// optionally if the second parameter is true a full tag revision(all(tagId) >-1) and
-// removing duplicates from tagIds can be performed
+// CheckUpdateRequest checks if featureId>-1,len(tagIds[])>0, and
+// removing duplicates from tagIds
+// optionally if the second parameter is true a full tag revision(all(tagId) >-1) can be performed
 func CheckUpdateRequest(req *request.UpdateRequest, advanced bool) error {
 	if req.BannerId < 1 {
 		return errors.New("incorrect bannerId: bannerId must be >1")
+	}
+	if reflect.TypeOf(req.FeatureId) != reflect.TypeOf(int64(0)) {
+		return errors.New("incorrect featureId")
+	}
+	if reflect.TypeOf(req.TagIds) != reflect.TypeOf([]int64{}) {
+		return errors.New("incorrect tagIds")
 	}
 	if req.FeatureId < 0 {
 		return errors.New("incorrect featureId")
@@ -50,8 +63,8 @@ func CheckUpdateRequest(req *request.UpdateRequest, advanced bool) error {
 	if len(req.TagIds) == 0 || req.TagIds == nil {
 		return errors.New("incorrect tags: tags cannot be empty")
 	}
+	req.TagIds = removeDuplicates(req.TagIds)
 	if advanced {
-		req.TagIds = removeDuplicates(req.TagIds)
 		for i, tag := range req.TagIds {
 			if tag < 0 {
 				return errors.New(fmt.Sprintf("incorrect tagId #%v", i))

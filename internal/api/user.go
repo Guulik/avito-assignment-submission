@@ -24,6 +24,7 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 		LastRevision: false,
 	}
 
+	//checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -33,9 +34,9 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 
 	if err = validator.Authorize(req.Token); err != nil {
 		log.Error("incorrect token", sl.Err(err))
-		return echo.NewHTTPError(http.StatusUnauthorized, "Пользователь не авторизован")
+		return echo.NewHTTPError(http.StatusUnauthorized, "User unauthorized")
 	}
-	if err = validator.CheckGetUserRequest(&req); err != nil {
+	if err = validator.CheckGetRequest(&req); err != nil {
 		log.Error("incorrect request", sl.Err(err))
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}

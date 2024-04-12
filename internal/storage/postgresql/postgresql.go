@@ -1,13 +1,11 @@
 package postgresql
 
 import (
-	"Avito_trainee_assignment/internal/config/constants"
+	"Avito_trainee_assignment/internal/constants"
 	"Avito_trainee_assignment/internal/domain/model"
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
 	"Avito_trainee_assignment/internal/storage"
-	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"log/slog"
@@ -185,6 +183,7 @@ func (s Storage) Save(featureId int64, tagIds []int64, content []byte, isActive 
 	if err != nil {
 		//TODO: find way to get sqlerror code explicitly
 		if strings.Contains(err.Error(), "23505") {
+			log.Error("Bad request", sl.Err(err))
 			return -1, echo.NewHTTPError(http.StatusBadRequest,
 				"Теги либо фича баннера пересекаются с уже существующим")
 		}
@@ -302,7 +301,7 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 	)
 
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if strings.Contains(err.Error(), "no rows in result set") {
 			log.Error("banner not found", sl.Err(err))
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Баннер с id:%d не найден", bannerId))
 		}
