@@ -75,8 +75,11 @@ func CheckUpdateRequest(req *request.UpdateRequest, advanced bool) error {
 }
 
 func CheckDeleteRequest(req *request.DeleteRequest) error {
-	if req.BannerId < 1 {
-		return errors.New("incorrect bannerId: bannerId must be >1")
+	if req.BannerId < 0 && req.FeatureId < 0 && req.TagId < 0 {
+		return errors.New("bad request! at least one parameter required")
+	}
+	if (req.BannerId > -1 && req.FeatureId > -1) || (req.BannerId > -1 && req.TagId > -1) {
+		return errors.New("bad request! you should choose: Id xor tag|feature")
 	}
 	return nil
 }

@@ -9,10 +9,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 const (
 	envLocal = "local"
+	envStage = "stage"
 	envProd  = "prod"
 )
 
@@ -23,6 +25,9 @@ func main() {
 	log := setupLogger(cfg.Env)
 
 	a := app.New(log, cfg)
+
+	time.Sleep(time.Second)
+	//TODO: fix panic at server stop
 	go func() {
 		a.MustRun()
 	}()
@@ -44,6 +49,10 @@ func setupLogger(env string) *slog.Logger {
 	switch env {
 	case envLocal:
 		log = setupPrettySlog()
+	case envStage:
+		log = slog.New(
+			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		)
 	case envProd:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),

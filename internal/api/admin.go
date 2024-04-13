@@ -161,8 +161,10 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 	)
 	//default empty request values
 	req := request.DeleteRequest{
-		BannerId: -1,
-		Token:    "",
+		BannerId:  -1,
+		FeatureId: -1,
+		TagId:     -1,
+		Token:     "",
 	}
 	//checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
@@ -184,8 +186,23 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
+	if req.FeatureId > 0 || req.TagId > 0 {
+		defer func() error {
+			err = a.svc.DeleteBanner(
+				req.BannerId,
+				req.FeatureId,
+				req.TagId,
+			)
+			if err != nil {
+				return err
+			}
+			return nil
+		}()
+	}
 	err = a.svc.DeleteBanner(
 		req.BannerId,
+		req.FeatureId,
+		req.TagId,
 	)
 	if err != nil {
 		return err

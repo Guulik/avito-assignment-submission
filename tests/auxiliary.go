@@ -69,27 +69,39 @@ func TagsSet() *set.Set[int64] {
 
 func SpareFeature() int64 {
 	usedFeatures := FeaturesSet().Slice()
-	feature := int64(gofakeit.Int32())
+	if len(usedFeatures) > 200 {
+		return int64(gofakeit.Uint32())
+	}
+	feature := int64(gofakeit.Uint32())
 	for {
-		if feature < 0 {
-			feature = -1 * feature
-		}
 		if !slices.Contains(usedFeatures, feature) {
 			return feature
 		}
-		feature = int64(gofakeit.Int32())
+		feature = int64(gofakeit.Uint32())
 	}
 }
 
 func SpareTags() []int64 {
 	usedTags := TagsSet().Slice()
+
 	var tags []int64
 	for i := 0; i < 1+rand.Intn(3); i++ {
-		tag := int64(gofakeit.Int32())
-		if tag < 0 {
-			tag = -1 * tag
+		tag := int64(gofakeit.Uint32())
+		if len(usedTags) > 200 {
+			tags = append(tags, tag)
 		}
 		if !slices.Contains(usedTags, tag) && tag > 0 {
+			tags = append(tags, tag)
+		}
+	}
+	return tags
+}
+
+func randomTags() []int64 {
+	var tags []int64
+	for i := 0; i < 1+rand.Intn(3); i++ {
+		tag := int64(gofakeit.Uint32())
+		if !slices.Contains(tags, tag) && tag > 0 {
 			tags = append(tags, tag)
 		}
 	}
@@ -110,8 +122,8 @@ func RandomContent() map[string]interface{} {
 
 func RandomBody() *ReqBody {
 	return &ReqBody{
-		Feature:  SpareFeature(),
-		Tags:     SpareTags(),
+		Feature:  777,
+		Tags:     randomTags(),
 		Content:  RandomContent(),
 		IsActive: gofakeit.Bool(),
 	}

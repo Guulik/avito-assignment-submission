@@ -1,9 +1,9 @@
 package validator
 
 import (
-	"Avito_trainee_assignment/internal/constants"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
+	"os"
 )
 
 var (
@@ -14,8 +14,9 @@ var (
 )
 
 func CheckAdmin(token string) error {
+	key := fetchSecretKey()
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(constants.SecretKey), nil
+		return []byte(key), nil
 	})
 
 	if err != nil {
@@ -32,8 +33,9 @@ func CheckAdmin(token string) error {
 }
 
 func Authorize(token string) error {
+	key := fetchSecretKey()
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(constants.SecretKey), nil
+		return []byte(key), nil
 	})
 	var ve *jwt.ValidationError
 	if errors.As(err, &ve) {
@@ -52,4 +54,14 @@ func Authorize(token string) error {
 	} else {
 		return ErrNotValid
 	}
+}
+
+func fetchSecretKey() string {
+	const key = "SECRET_KEY"
+
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+
+	return "guulik"
 }

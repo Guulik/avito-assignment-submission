@@ -81,13 +81,13 @@ func (s *Service) UpdateBanner(bannerId int64, tagIds []int64, featureId int64, 
 	return nil
 }
 
-func (s *Service) DeleteBanner(bannerId int64) error {
+func (s *Service) DeleteBanner(bannerId int64, featureId int64, tagId int64) error {
 	const op = "Service.UpdateBanner"
 
 	_ = s.log.With(
 		slog.String("op", op),
 	)
-	err := s.storage.Delete(bannerId)
+	err := s.storage.Delete(bannerId, featureId, tagId)
 	if err != nil {
 		return err
 	}

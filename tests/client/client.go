@@ -75,7 +75,7 @@ func configPath() string {
 		return v
 	}
 
-	return "../../local.yaml"
+	return "../../stage.yaml"
 }
 
 func address(cfg *config.Config) string {

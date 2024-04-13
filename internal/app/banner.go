@@ -49,6 +49,7 @@ func New(log *slog.Logger, cfg *config.Config) *App {
 	app.echo.POST("/banner", app.api.CreateBanner)
 	app.echo.PATCH("/banner/:id", app.api.PatchBanner)
 	app.echo.DELETE("/banner/:id", app.api.DeleteBanner)
+	app.echo.DELETE("/banner", app.api.DeleteBanner)
 
 	return app
 }

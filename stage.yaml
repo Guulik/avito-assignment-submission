@@ -1,0 +1,16 @@
+env: "stage"
+port: 4444
+timeout: 1m
+postgres:
+  host: "postgres"
+  SQLPort: "7777"
+  user: "postgres"
+  password: "5379"
+  DBName: "bannerDb"
+  sslMode: "disable"
+  driver: "pgx"
+redis:
+  address: "redis:6379"
+  password: "5379"
+  DB: 0
+  TTLMinutes: 5m

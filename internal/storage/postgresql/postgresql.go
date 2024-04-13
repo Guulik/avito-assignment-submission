@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"log/slog"
 	"net/http"
 	"slices"
@@ -53,7 +54,7 @@ func (s Storage) UserBannerDB(featureId int64, tagId int64) ([]byte, error) {
 		values = []any{featureId, tagId}
 	)
 
-	log.Info(fmt.Sprintf("sql query: %v", query))
+	log.Debug(fmt.Sprintf("sql query: %v", query))
 
 	if err := s.db.Get(&content, query, values...); err != nil {
 		log.Error("failed to get user banner", err)
@@ -82,7 +83,7 @@ func (s Storage) Banners(limit int64, offset int64) ([]model.BannerDB, error) {
 	if offset != -1 {
 		query = query + fmt.Sprintf(" OFFSET %d", offset)
 	}
-	log.Info(fmt.Sprintf("query = %v", query))
+	log.Debug(fmt.Sprintf("query = %v", query))
 
 	err := s.db.Select(&banners, query)
 	if err != nil {
@@ -117,14 +118,14 @@ func (s Storage) FilteredBanners(featureId int64, tagIg int64, limit int64, offs
 	case tagIg > -1:
 		query = query + fmt.Sprintf(" %d=bdef.tag_id", tagIg)
 	}
+	query = query + " GROUP BY b.banner_id"
 	if limit > -1 {
 		query = query + fmt.Sprintf(" LIMIT %d", limit)
 	}
 	if offset > -1 {
 		query = query + fmt.Sprintf(" OFFSET %d", offset)
 	}
-	query = query + " GROUP BY b.banner_id"
-	log.Info(fmt.Sprintf("query = %v", query))
+	log.Debug(fmt.Sprintf("query = %v", query))
 
 	err := s.db.Select(&banners, query)
 	if err != nil {
@@ -167,9 +168,7 @@ func (s Storage) Save(featureId int64, tagIds []int64, content []byte, isActive 
 		}
 		id int64
 	)
-	log.Info(fmt.Sprintf("sql query: %v", query))
-
-	log.Info("beginning transaction")
+	log.Debug("beginning transaction")
 	tx, err := s.db.Begin()
 	if err != nil {
 		log.Error("failed to begin transaction", sl.Err(err))
@@ -191,7 +190,7 @@ func (s Storage) Save(featureId int64, tagIds []int64, content []byte, isActive 
 		return -1, echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	log.Info("trying to commit transaction")
+	log.Debug("trying to commit transaction")
 	err = tx.Commit()
 	if err != nil {
 		log.Error("failed to commit transaction", sl.Err(err))
@@ -279,7 +278,7 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 			constants.BannerTable)
 	)
 
-	log.Info("beginning transaction")
+	log.Debug("beginning transaction")
 	tx, err := s.db.Begin()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -288,7 +287,7 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 
 	var contentJSON []byte
 	var banner model.BannerDB
-	log.Info("trying to get banner")
+	log.Debug("trying to get banner")
 	row := tx.QueryRow(queryGetByID, bannerId)
 	err = row.Scan(
 		&banner.ID,
@@ -311,8 +310,6 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 
 	log.Info("updating...")
 	if featureId != banner.FeatureId {
-		//TODO: delete this log
-		log.Info("updating feature")
 		if _, err = tx.Exec(queryUpdateFeatureID, bannerId, featureId); err != nil {
 			log.Error("failed to update feature", sl.Err(err))
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -320,8 +317,6 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 	}
 	bannerTags, err := model.ParseIntArrayFromString(banner.TagIds)
 	if !slices.Equal(tagIds, bannerTags) {
-		//TODO: delete this log
-		log.Info("updating tags")
 		_, err = tx.Exec(queryDeleteTagIDs, bannerId)
 		_, err = tx.Exec(
 			queryUpdateTagIDs,
@@ -334,28 +329,22 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 		}
 	}
 	if isActive != banner.IsActive {
-		//TODO: delete this log
-		log.Info("updating status")
 		if _, err = tx.Exec(queryUpdateIsActive, bannerId, isActive); err != nil {
 			log.Error("failed to update active status", sl.Err(err))
 			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
 	}
-	//TODO: delete this log
-	log.Info("updating content")
 	if _, err = tx.Exec(queryUpdateContent, bannerId, content); err != nil {
 		log.Error("failed to update content", sl.Err(err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	//TODO: delete this log
-	log.Info("updating time")
 	if _, err = tx.Exec(queryUpdatedTime, bannerId, time.Now()); err != nil {
 		log.Error("failed to update updated_at", sl.Err(err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	log.Info("update completed!")
 
-	log.Info("trying to commit transaction")
+	log.Debug("trying to commit transaction")
 	if err = tx.Commit(); err != nil {
 		log.Error("failed to commit transaction", sl.Err(err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -364,25 +353,62 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 	return nil
 }
 
-func (s Storage) Delete(bannerId int64) error {
+func (s Storage) Delete(bannerId int64, featureId int64, tagId int64) error {
 	const op = "Repo.Delete"
 
 	log := s.log.With(
 		slog.String("op", op),
 	)
 	var (
-		queryDeleteBanner = fmt.Sprintf(`
-		DELETE FROM %s WHERE banner_id = $1;
+		query = fmt.Sprintf(`
+		DELETE FROM %s 
+		WHERE
 		`, constants.BannerTable)
-
-		queryDeleteBannerDefinition = fmt.Sprintf(`
-		DELETE FROM %s WHERE banner_id = $1;
-		`, constants.BannerDefinitionTable)
+		_ = fmt.Sprintf(`
+		SELECT COUNT(*) 
+		FROM %s
+		WHERE
+		`, constants.BannerTable)
 	)
-	log.Info(fmt.Sprintf("sql queryDeleteBanner: %v", queryDeleteBanner))
+
+	var err error
+	if bannerId > 0 {
+		query = query + fmt.Sprintf(" banner_id = %d;", bannerId)
+		if err = deleteBy(s.db, query); err != nil {
+			log.Error("failed to delete by  Id", sl.Err(err))
+			return err
+		}
+	}
+	if featureId > 0 && tagId > 0 {
+
+		query = query + fmt.Sprintf(" feature_id = %d AND %d = ANY(tag_ids);", featureId, tagId)
+		if err = deleteBy(s.db, query); err != nil {
+			log.Error("failed to delete by feature AND tag", sl.Err(err))
+		}
+
+	} else {
+		if featureId > 0 {
+			query = query + fmt.Sprintf(" feature_id = %d;", featureId)
+			log.Info(query)
+			if err = deleteBy(s.db, query); err != nil {
+				log.Error("failed to delete by feature", sl.Err(err))
+			}
+		}
+		if tagId > 0 {
+			query = query + fmt.Sprintf(" %d = ANY(tag_ids);", tagId)
+			log.Info(query)
+			if err = deleteBy(s.db, query); err != nil {
+				log.Error("failed to delete by tag", sl.Err(err))
+			}
+		}
+	}
+	return nil
+}
+
+func deleteBy(db *sqlx.DB, queryBanner string) error {
 	log.Info("beginning transaction")
 
-	tx, err := s.db.Begin()
+	tx, err := db.Begin()
 	if err != nil {
 		log.Error("failed to begin transaction", sl.Err(err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -391,21 +417,8 @@ func (s Storage) Delete(bannerId int64) error {
 
 	var affect int64
 
-	log.Info("trying to delete related banner definition")
-	ct, err := tx.Exec(queryDeleteBannerDefinition, bannerId)
-	if err != nil {
-		log.Error("failed to delete banner", sl.Err(err))
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
-	}
-	if affect, err = ct.RowsAffected(); err != nil {
-		return err
-	}
-	if affect < 1 {
-		return echo.NewHTTPError(http.StatusNotFound, "nothing to delete")
-	}
-
 	log.Info("trying to delete banner")
-	ct, err = tx.Exec(queryDeleteBanner, bannerId)
+	ct, err := tx.Exec(queryBanner)
 	if err != nil {
 		log.Error("failed to delete banner", sl.Err(err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

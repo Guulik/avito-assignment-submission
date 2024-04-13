@@ -31,5 +31,7 @@ type BannerService interface {
 	) error
 	DeleteBanner(
 		bannerId int64,
+		featureId int64,
+		tagId int64,
 	) error
 }

@@ -1,0 +1,39 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    hostname: "postgres"
+    ports:
+      - "7777:7777"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 5379
+      POSTGRES_DB: bannerDb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    command: -p 7777
+
+  redis:
+    image: redis:latest
+    hostname: "redis"
+    ports:
+      - "6379"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: avito_banner:v0.0.2
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      CONFIG_PATH: /config/stage.yaml
+    ports:
+      - "4444:4444"
+    volumes:
+      - ./stage.yaml:/config/stage.yaml
+
+volumes:
+  postgres_data:

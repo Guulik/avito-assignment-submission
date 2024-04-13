@@ -26,6 +26,8 @@ type UpdateRequest struct {
 }
 
 type DeleteRequest struct {
-	BannerId int64  `param:"id"`
-	Token    string `header:"token"`
+	BannerId  int64  `param:"id"`
+	FeatureId int64  `query:"feature_id"`
+	TagId     int64  `query:"tag_id"`
+	Token     string `header:"token"`
 }

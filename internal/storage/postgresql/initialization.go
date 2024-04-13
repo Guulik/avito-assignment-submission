@@ -11,7 +11,11 @@ func InitPostgres(c *config.Config) (*sqlx.DB, error) {
 	connectionUrl := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		c.Postgres.Host, c.Postgres.SQLPort, c.Postgres.User, c.Postgres.Password, c.Postgres.DBName, c.Postgres.SslMode)
 
-	return sqlx.Connect(c.Postgres.Driver, connectionUrl)
+	db, err := sqlx.Connect(c.Postgres.Driver, connectionUrl)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return db, err
 }
 func CreateTable(db *sqlx.DB) error {
 	var (
@@ -33,9 +37,14 @@ func CreateTable(db *sqlx.DB) error {
 		banner_id BIGINT NOT NULL,
 		feature_id BIGINT NOT NULL,
 		tag_id BIGINT NOT NULL,
-		PRIMARY KEY (feature_id, tag_id),
-		FOREIGN KEY (banner_id) REFERENCES "banner" (banner_id)
+		PRIMARY KEY (feature_id, tag_id)
 		);
+		ALTER TABLE banner_definition DROP CONSTRAINT IF EXISTS fk_banner_id;
+
+		ALTER TABLE banner_definition
+		ADD CONSTRAINT fk_banner_id
+		FOREIGN KEY (banner_id) REFERENCES "banner" (banner_id)
+		ON DELETE CASCADE;
 
 		CREATE UNIQUE INDEX IF NOT EXISTS index_feature_tag ON banner_definition (feature_id, tag_id);
 		`
