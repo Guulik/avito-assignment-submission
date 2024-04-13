@@ -16,7 +16,7 @@ var (
 
 func TestCreate_Happy(t *testing.T) {
 	_, c := client.New(t)
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 200; i++ {
 		body := *tests.RandomBody()
 		bodyJSON, err := json.Marshal(body)
 		require.NoError(t, err)

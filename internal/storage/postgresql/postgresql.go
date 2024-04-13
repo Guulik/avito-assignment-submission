@@ -439,3 +439,32 @@ func deleteBy(db *sqlx.DB, queryBanner string) error {
 	}
 	return nil
 }
+
+// GetBannerById is auxiliary function for quick access to the exact banner
+func (s Storage) GetBannerById(bannerId int64) (*model.BannerDB, error) {
+	const op = "Repo.UserBannerDB"
+
+	log := s.log.With(
+		slog.String("op", op),
+	)
+	var (
+		banner model.BannerDB
+		query  = fmt.Sprintf(`
+		SELECT *
+		FROM %s
+		WHERE banner_id = $1`,
+			constants.BannerTable,
+		)
+
+		values = []any{bannerId}
+	)
+
+	log.Debug(fmt.Sprintf("sql query: %v", query))
+
+	if err := s.db.Get(&banner, query, values...); err != nil {
+		log.Error("failed to get user banner", err)
+		return nil, echo.NewHTTPError(http.StatusNotFound, "Баннер not found")
+	}
+
+	return &banner, nil
+}

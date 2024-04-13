@@ -37,6 +37,9 @@ type BannerStorage interface {
 		featureId int64,
 		tagId int64,
 	) error
+	GetBannerById(
+		bannerId int64,
+	) (*model.BannerDB, error)
 }
 
 type BannerCache interface {

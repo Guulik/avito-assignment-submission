@@ -2,6 +2,6 @@ package end2end
 
 import "testing"
 
-func TestLastRevision(t *testing.T) {
+func TestAdminUser(t *testing.T) {
 
 }

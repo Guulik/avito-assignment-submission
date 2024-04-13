@@ -122,7 +122,7 @@ func RandomContent() map[string]interface{} {
 
 func RandomBody() *ReqBody {
 	return &ReqBody{
-		Feature:  777,
+		Feature:  int64(gofakeit.Uint32()),
 		Tags:     randomTags(),
 		Content:  RandomContent(),
 		IsActive: gofakeit.Bool(),

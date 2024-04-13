@@ -78,6 +78,18 @@ func (s *Service) UpdateBanner(bannerId int64, tagIds []int64, featureId int64, 
 		return err
 	}
 
+	//if feature or tag were modified, delete from cache
+	if featureId > 0 || (len(tagIds) > 0 && tagIds != nil) {
+		bannerDb, _ := s.storage.GetBannerById(bannerId)
+		banner, _ := model.ToBanner(*bannerDb)
+		for _, tag := range banner.TagIds {
+			err = s.cache.DeleteBannerCache(banner.FeatureId, tag)
+		}
+		if err != nil {
+			log.Warn("failed to clean cache after patch", sl.Err(err))
+		}
+	}
+
 	return nil
 }
 

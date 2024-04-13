@@ -10,7 +10,7 @@ func BannersDbToService(bannersDB []BannerDB) ([]Banner, error) {
 	result := make([]Banner, len(bannersDB))
 
 	for i, bDB := range bannersDB {
-		b, err := toBanner(bDB)
+		b, err := ToBanner(bDB)
 		if err != nil {
 			return nil, err
 		}
@@ -20,7 +20,7 @@ func BannersDbToService(bannersDB []BannerDB) ([]Banner, error) {
 	return result, nil
 }
 
-func toBanner(bDB BannerDB) (Banner, error) {
+func ToBanner(bDB BannerDB) (Banner, error) {
 	b := Banner{
 		ID:        bDB.ID,
 		FeatureId: bDB.FeatureId,

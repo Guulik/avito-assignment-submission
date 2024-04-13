@@ -23,12 +23,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: avito_banner:v0.0.2
+    image: avito_banner:v0.0.3
     depends_on:
       - postgres
       - redis
     environment:
-      SECRET_KEY: ${SECRET_KEY}
       CONFIG_PATH: /config/stage.yaml
     ports:
       - "4444:4444"

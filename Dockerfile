@@ -1,5 +1,4 @@
 FROM golang:latest AS builder
-
 WORKDIR /app
 
 COPY go.mod .
