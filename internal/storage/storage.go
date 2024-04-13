@@ -50,6 +50,7 @@ type BannerCache interface {
 		content []byte,
 	) error
 	DeleteBannerCache(
-		bannerId int64,
+		featureId int64,
+		tagId int64,
 	) error
 }

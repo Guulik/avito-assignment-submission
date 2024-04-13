@@ -84,12 +84,18 @@ func (s *Service) UpdateBanner(bannerId int64, tagIds []int64, featureId int64, 
 func (s *Service) DeleteBanner(bannerId int64, featureId int64, tagId int64) error {
 	const op = "Service.UpdateBanner"
 
-	_ = s.log.With(
+	log := s.log.With(
 		slog.String("op", op),
 	)
 	err := s.storage.Delete(bannerId, featureId, tagId)
 	if err != nil {
 		return err
+	}
+
+	log.Debug("deleting from cache")
+	err = s.cache.DeleteBannerCache(featureId, tagId)
+	if err != nil {
+		log.Warn("failed to delete from cache")
 	}
 
 	return nil

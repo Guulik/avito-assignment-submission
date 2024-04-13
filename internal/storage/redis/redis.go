@@ -6,6 +6,7 @@ import (
 	"Avito_trainee_assignment/internal/storage"
 	"context"
 	"fmt"
+	"github.com/labstack/gommon/log"
 	"github.com/redis/go-redis/v9"
 	"log/slog"
 	"time"
@@ -70,12 +71,31 @@ func (c Cache) SetBannerCache(featureId int64,
 	return nil
 }
 
-func (c Cache) DeleteBannerCache(bannerId int64) error {
+func (c Cache) DeleteBannerCache(featureId int64, tagId int64) error {
 	const op = "Cache.DeleteBannerCache"
 	_ = c.log.With(
 		slog.String("op", op),
 	)
-	//TODO: implement me
-	//ctx := context.Background()
+	ctx := context.Background()
+	var key, scriptToDeleteByPattern string
+	if featureId > 0 && tagId > 0 {
+		key = fmt.Sprintf("%v:%v", featureId, tagId)
+		scriptToDeleteByPattern = fmt.Sprintf("for _,k in ipairs(redis.call('keys','%s')) do redis.call('del',k) end", key)
+	} else {
+		if featureId > 0 {
+			key = fmt.Sprintf("%v:*", featureId)
+			scriptToDeleteByPattern = fmt.Sprintf("for _,k in ipairs(redis.call('keys','%s')) do redis.call('del',k) end", key)
+		}
+		if tagId > 0 {
+			key = fmt.Sprintf("*:%v", tagId)
+			scriptToDeleteByPattern = fmt.Sprintf("for _,k in ipairs(redis.call('keys','%s')) do redis.call('del',k) end", key)
+		}
+	}
+
+	err := c.redis.Eval(ctx, scriptToDeleteByPattern, []string{}).Err()
+	if err != nil {
+		log.Warn("failed to delete cached banner", sl.Err(err))
+		return err
+	}
 	return nil
 }
