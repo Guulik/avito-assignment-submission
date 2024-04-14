@@ -26,7 +26,6 @@ func main() {
 	a := app.New(log, cfg)
 
 	time.Sleep(time.Second)
-	// TODO: fix panic at server stop
 	go func() {
 		a.MustRun()
 	}()

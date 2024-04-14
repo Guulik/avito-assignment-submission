@@ -2,9 +2,11 @@
 
 #up - stop - start because volume and tables in the database are created at the first startup,
 #so the database may not be ready to accept the connection and the application will fall down :(
-first-run: build .up .stop .start integration_tests
+first-run: build .up stop start integration_tests
 
 test: .up integration_tests
+
+restart: stop start
 
 rebuild: build .up
 
@@ -14,7 +16,7 @@ build:
 .up:
 	docker-compose up -d
 
-.start:
+start:
 	docker-compose start
 
 integration_tests:
@@ -23,7 +25,7 @@ integration_tests:
 fake_banners:
 	go test -run TestCreate_Happy ./tests/integration/admincreate_test.go
 
-.stop:
+stop:
 	docker-compose stop
 
 down:

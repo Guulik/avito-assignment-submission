@@ -1,0 +1,226 @@
+{
+	"info": {
+		"_postman_id": "7412b91c-99a5-4a61-a98f-7e8c47ca51b5",
+		"name": "(banner)Avito trainee assignment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "34009943"
+	},
+	"item": [
+		{
+			"name": "GetUserBanner",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImR1bW15QHBvcC5jb3JuIiwibmFtZSI6InNpbGx5IiwiYWRtaW4iOmZhbHNlLCJleHAiOjUxMjUyMzM0MTIyMX0.NJPL563Qey8-WqVvZ_WO-IHCxUUCDicJpmfG-CTCGAM",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{avito}}/user_banner?feature_id=98899&tag_id=228",
+					"host": [
+						"{{avito}}"
+					],
+					"path": [
+						"user_banner"
+					],
+					"query": [
+						{
+							"key": "use_last_revision",
+							"value": "true",
+							"disabled": true
+						},
+						{
+							"key": "feature_id",
+							"value": "98899"
+						},
+						{
+							"key": "tag_id",
+							"value": "228"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetBanner",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImR1bW15QHBpcC5jb20iLCJuYW1lIjoiVHVjayIsImFkbWluIjp0cnVlfQ.vT7s2Bu7Q1vf1FV86XNW26R-McbslMhnkQw7zvnltNE",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{avito}}/banner",
+					"host": [
+						"{{avito}}"
+					],
+					"path": [
+						"banner"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "100",
+							"disabled": true
+						},
+						{
+							"key": "offset",
+							"value": "400",
+							"disabled": true
+						},
+						{
+							"key": "feature_id",
+							"value": "867105135",
+							"disabled": true
+						},
+						{
+							"key": "tag_id",
+							"value": "1264865379",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateBanner",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImR1bW15QHBpcC5jb20iLCJuYW1lIjoiVHVjayIsImFkbWluIjp0cnVlfQ.vT7s2Bu7Q1vf1FV86XNW26R-McbslMhnkQw7zvnltNE",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"feature_id\": 98899,\r\n    \"tag_ids\": [666, 228, 1337, 1448],\r\n    \"content\":{\r\n        \"culprit \": \"docker\",\r\n        \"guilt\": \"don`t want to load my config file....\",\r\n        \"victim\": \"me\",\r\n        \"comment\": \"i want to cry\",\r\n        \"base\": 1000,\r\n        \"subtract\": 7,\r\n        \"ya russki\": true\r\n    },\r\n    \"is_active\": true\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{avito}}/banner"
+			},
+			"response": []
+		},
+		{
+			"name": "Patch",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImR1bW15QHBpcC5jb20iLCJuYW1lIjoiVHVjayIsImFkbWluIjp0cnVlfQ.vT7s2Bu7Q1vf1FV86XNW26R-McbslMhnkQw7zvnltNE",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"feature_id\": 2006224870,\r\n    \"tag_ids\": [130798159,1181031420],\r\n    \"content\":{\r\n        \"jack london\": \"yes\",\r\n        \"this banner should be not active\": \"absolutely\"\r\n    },\r\n    \"is_active\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{avito}}/banner/1021"
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteBanner FeatureTag",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImR1bW15QHBpcC5jb20iLCJuYW1lIjoiVHVjayIsImFkbWluIjp0cnVlfQ.vT7s2Bu7Q1vf1FV86XNW26R-McbslMhnkQw7zvnltNE",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{avito}}/banner?feature_id=777",
+					"host": [
+						"{{avito}}"
+					],
+					"path": [
+						"banner"
+					],
+					"query": [
+						{
+							"key": "feature_id",
+							"value": "777"
+						},
+						{
+							"key": "tag_id",
+							"value": "661990851",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteBannerID",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImR1bW15QHBpcC5jb20iLCJuYW1lIjoiVHVjayIsImFkbWluIjp0cnVlfQ.vT7s2Bu7Q1vf1FV86XNW26R-McbslMhnkQw7zvnltNE",
+						"type": "text"
+					}
+				],
+				"url": "{{avito}}/banner/10"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "127.0.0.1",
+			"type": "string"
+		},
+		{
+			"key": "avito",
+			"value": "127.0.0.1:4444"
+		}
+	]
+}

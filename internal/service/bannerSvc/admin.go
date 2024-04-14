@@ -68,6 +68,11 @@ func (s *Service) UpdateBanner(bannerId int64, tagIds []int64, featureId int64, 
 		slog.String("op", op),
 	)
 
+	cleanCahce := false
+	if len(tagIds) > 0 || featureId > 0 {
+		cleanCahce = true
+	}
+
 	currentBannerDb, err := s.storage.GetBannerById(bannerId)
 	if err != nil {
 		log.Error("failed to get banner by Id", sl.Err(err))
@@ -97,18 +102,20 @@ func (s *Service) UpdateBanner(bannerId int64, tagIds []int64, featureId int64, 
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
+	if cleanCahce {
+		bannerDb, _ := s.storage.GetBannerById(bannerId)
+		banner, _ := model.ToBanner(*bannerDb)
+		for _, tag := range banner.TagIds {
+			err = s.cache.DeleteBannerCache(banner.FeatureId, tag)
+		}
+		if err != nil {
+			log.Warn("failed to clean cache", sl.Err(err))
+		}
+	}
+
 	err = s.storage.Patch(bannerId, tagIds, featureId, SQLContent, isActive)
 	if err != nil {
 		return err
-	}
-
-	bannerDb, _ := s.storage.GetBannerById(bannerId)
-	banner, _ := model.ToBanner(*bannerDb)
-	for _, tag := range banner.TagIds {
-		err = s.cache.DeleteBannerCache(banner.FeatureId, tag)
-	}
-	if err != nil {
-		log.Warn("failed to clean cache after patch", sl.Err(err))
 	}
 
 	return nil
