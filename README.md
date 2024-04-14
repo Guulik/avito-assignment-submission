@@ -64,7 +64,7 @@ make restart
 ![img_1.png](assets/img_1.png)
 
 Попробуем создать парочку баннеров с одинаковыми тегами, но разными фичами
-<br><img src="img_2.png" width="600" /> <img src="img_3.png" width="600" /><br>
+<br><img src="assets/img_2.png" width="600" /> <img src="assets/img_3.png" width="600" /><br>
 
 Теперь получим баннеры с фильтрацией по тегу 228 как админ <br>
 ![img_5.png](assets/img_5.png)
