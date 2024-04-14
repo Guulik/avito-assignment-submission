@@ -2,8 +2,9 @@ package binder
 
 import (
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
-	"github.com/labstack/echo/v4"
 	"log/slog"
+
+	"github.com/labstack/echo/v4"
 )
 
 func BindReq(log *slog.Logger, ctx echo.Context, req interface{}) error {

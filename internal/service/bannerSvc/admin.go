@@ -4,9 +4,10 @@ import (
 	"Avito_trainee_assignment/internal/domain/model"
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
 	"encoding/json"
-	"github.com/labstack/echo/v4"
 	"log/slog"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 func (s *Service) GetBanners(featureId int64, tagId int64, limit int64, offset int64) ([]model.Banner, error) {
@@ -67,16 +68,23 @@ func (s *Service) UpdateBanner(bannerId int64, tagIds []int64, featureId int64, 
 		slog.String("op", op),
 	)
 
-	SQLContent, err := json.Marshal(content)
-	if err != nil {
-		log.Error("failed to Marshal data", sl.Err(err))
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	cleanCahce := false
+	if len(tagIds) > 0 || featureId > 0 {
+		cleanCahce = true
 	}
 
 	currentBannerDb, err := s.storage.GetBannerById(bannerId)
+	if err != nil {
+		log.Error("failed to get banner by Id", sl.Err(err))
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
 	currentBanner, err := model.ToBanner(*currentBannerDb)
+	if err != nil {
+		log.Error("failed to convert banner to service", sl.Err(err))
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
 
-	if tagIds == nil || len(tagIds) == 0 {
+	if len(tagIds) == 0 {
 		tagIds = currentBanner.TagIds
 	}
 	if featureId < 0 {
@@ -85,22 +93,29 @@ func (s *Service) UpdateBanner(bannerId int64, tagIds []int64, featureId int64, 
 	if content == nil {
 		content = currentBanner.Content
 	}
-	if isActive == false {
+	if !isActive {
 		isActive = currentBanner.IsActive
+	}
+	SQLContent, err := json.Marshal(content)
+	if err != nil {
+		log.Error("failed to Marshal data", sl.Err(err))
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	if cleanCahce {
+		bannerDb, _ := s.storage.GetBannerById(bannerId)
+		banner, _ := model.ToBanner(*bannerDb)
+		for _, tag := range banner.TagIds {
+			err = s.cache.DeleteBannerCache(banner.FeatureId, tag)
+		}
+		if err != nil {
+			log.Warn("failed to clean cache", sl.Err(err))
+		}
 	}
 
 	err = s.storage.Patch(bannerId, tagIds, featureId, SQLContent, isActive)
 	if err != nil {
 		return err
-	}
-
-	bannerDb, _ := s.storage.GetBannerById(bannerId)
-	banner, _ := model.ToBanner(*bannerDb)
-	for _, tag := range banner.TagIds {
-		err = s.cache.DeleteBannerCache(banner.FeatureId, tag)
-	}
-	if err != nil {
-		log.Warn("failed to clean cache after patch", sl.Err(err))
 	}
 
 	return nil

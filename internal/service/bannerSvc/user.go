@@ -3,9 +3,10 @@ package bannerSvc
 import (
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
 	"encoding/json"
-	"github.com/labstack/echo/v4"
 	"log/slog"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 func (s *Service) GetUserBanner(featureId int64, tagId int64, lastRevision bool) (map[string]interface{}, error) {

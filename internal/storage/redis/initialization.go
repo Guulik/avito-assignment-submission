@@ -2,6 +2,7 @@ package redis
 
 import (
 	"Avito_trainee_assignment/config"
+
 	"github.com/redis/go-redis/v9"
 )
 

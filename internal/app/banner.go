@@ -8,8 +8,9 @@ import (
 	"Avito_trainee_assignment/internal/storage/redis"
 	"context"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"log/slog"
+
+	"github.com/labstack/echo/v4"
 )
 
 type App struct {
@@ -64,6 +65,7 @@ func (a *App) Run() error {
 
 	return nil
 }
+
 func (a *App) MustRun() {
 	if err := a.Run(); err != nil {
 		panic(err)
@@ -71,7 +73,6 @@ func (a *App) MustRun() {
 }
 
 func (a *App) Stop() error {
-
 	fmt.Println("stopping server..." + " op = app.Stop")
 	ctx := context.Background()
 	if err := a.echo.Shutdown(ctx); err != nil {

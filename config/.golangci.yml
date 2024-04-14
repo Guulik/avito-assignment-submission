@@ -1,0 +1,23 @@
+linters:
+  enable:
+    - bodyclose
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - govet
+    - grouper
+    - importas
+    - ineffassign
+    - interfacebloat
+    - nakedret
+  disable:
+    - funlen
+    - godox
+    - nestif
+  presets:
+    - bugs
+    - comment
+    - complexity
+  fast: true

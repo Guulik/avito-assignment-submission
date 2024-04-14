@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/ilyakaznacheev/cleanenv"
 	"os"
 	"time"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
@@ -41,7 +42,6 @@ func MustLoad() *Config {
 }
 
 func MustLoadPath(configPath string) *Config {
-
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		panic("config file does not exist: " + configPath)
 	}
@@ -62,5 +62,5 @@ func fetchConfigPath() string {
 		return v
 	}
 
-	return "local.yaml"
+	return "./config/local.yaml"
 }

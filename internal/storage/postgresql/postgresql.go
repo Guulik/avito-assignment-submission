@@ -6,14 +6,15 @@ import (
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
 	"Avito_trainee_assignment/internal/storage"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	"log/slog"
 	"net/http"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 var _ storage.BannerStorage = (*Storage)(nil)
@@ -58,7 +59,7 @@ func (s Storage) UserBannerDB(featureId int64, tagId int64) ([]byte, error) {
 
 	if err := s.db.Get(&content, query, values...); err != nil {
 		log.Error("failed to get user banner", err)
-		return nil, echo.NewHTTPError(http.StatusNotFound, "Баннер для пользователя не найден")
+		return nil, echo.NewHTTPError(http.StatusNotFound, "The banner for the user was not found")
 	}
 
 	return content, nil
@@ -93,6 +94,7 @@ func (s Storage) Banners(limit int64, offset int64) ([]model.BannerDB, error) {
 
 	return banners, nil
 }
+
 func (s Storage) FilteredBanners(featureId int64, tagIg int64, limit int64, offset int64) ([]model.BannerDB, error) {
 	const op = "Repo.FilteredBanners"
 	log := s.log.With(
@@ -135,6 +137,7 @@ func (s Storage) FilteredBanners(featureId int64, tagIg int64, limit int64, offs
 
 	return banners, nil
 }
+
 func (s Storage) Save(featureId int64, tagIds []int64, content []byte, isActive bool) (int64, error) {
 	const op = "Repo.Save"
 
@@ -162,7 +165,8 @@ func (s Storage) Save(featureId int64, tagIds []int64, content []byte, isActive 
 			constants.BannerTable,
 			constants.BannerDefinitionTable)
 
-		values = []any{featureId, content, isActive,
+		values = []any{
+			featureId, content, isActive,
 			"{" + strings.Trim(strings.Replace(fmt.Sprint(tagIds), " ", ", ", -1), "[]") + "}",
 			time.Now(), time.Now(),
 		}
@@ -178,13 +182,12 @@ func (s Storage) Save(featureId int64, tagIds []int64, content []byte, isActive 
 
 	row := tx.QueryRow(query, values...)
 	err = row.Scan(&id)
-
 	if err != nil {
-		//TODO: find way to get sqlerror code explicitly
+		// TODO: find way to get sqlerror code explicitly
 		if strings.Contains(err.Error(), "23505") {
 			log.Error("Bad request", sl.Err(err))
 			return -1, echo.NewHTTPError(http.StatusBadRequest,
-				"Теги либо фича баннера пересекаются с уже существующим")
+				"The tag or feature of the banner overlaps with an existing banner")
 		}
 		log.Error("failed to scan row", sl.Err(err))
 		return -1, echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -298,11 +301,10 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 		&banner.CreatedAt,
 		&banner.UpdatedAt,
 	)
-
 	if err != nil {
 		if strings.Contains(err.Error(), "no rows in result set") {
 			log.Error("banner not found", sl.Err(err))
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Баннер с id:%d не найден", bannerId))
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Banner with id:%d not found", bannerId))
 		}
 		log.Error("failed to scan", sl.Err(err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -316,8 +318,16 @@ func (s Storage) Patch(bannerId int64, tagIds []int64, featureId int64, content 
 		}
 	}
 	bannerTags, err := model.ParseIntArrayFromString(banner.TagIds)
+	if err != nil {
+		log.Error("failed to parse tags", sl.Err(err))
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
 	if !slices.Equal(tagIds, bannerTags) {
 		_, err = tx.Exec(queryDeleteTagIDs, bannerId)
+		if err != nil {
+			log.Error("failed to delete tags", sl.Err(err))
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
+		}
 		_, err = tx.Exec(
 			queryUpdateTagIDs,
 			bannerId,
@@ -440,7 +450,7 @@ func deleteBy(db *sqlx.DB, queryBanner string) error {
 	return nil
 }
 
-// GetBannerById is auxiliary function for quick access to the exact banner
+// GetBannerById is auxiliary function for quick access to the exact banner.
 func (s Storage) GetBannerById(bannerId int64) (*model.BannerDB, error) {
 	const op = "Repo.UserBannerDB"
 
@@ -463,7 +473,7 @@ func (s Storage) GetBannerById(bannerId int64) (*model.BannerDB, error) {
 
 	if err := s.db.Get(&banner, query, values...); err != nil {
 		log.Error("failed to get user banner", err)
-		return nil, echo.NewHTTPError(http.StatusNotFound, "Баннер not found")
+		return nil, echo.NewHTTPError(http.StatusNotFound, "Banner not found")
 	}
 
 	return &banner, nil

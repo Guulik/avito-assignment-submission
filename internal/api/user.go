@@ -5,9 +5,10 @@ import (
 	"Avito_trainee_assignment/internal/lib/binder"
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
 	"Avito_trainee_assignment/internal/lib/validator"
-	"github.com/labstack/echo/v4"
 	"log/slog"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 func (a *Api) GetUserBanner(ctx echo.Context) error {
@@ -16,7 +17,7 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 	log := a.log.With(
 		slog.String("op", op),
 	)
-	//default empty request values
+	// default empty request values
 	req := request.GetUserRequest{
 		Token:        "",
 		FeatureId:    -1,
@@ -24,7 +25,7 @@ func (a *Api) GetUserBanner(ctx echo.Context) error {
 		LastRevision: false,
 	}
 
-	//checks if request in correct form and bind it
+	// checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
