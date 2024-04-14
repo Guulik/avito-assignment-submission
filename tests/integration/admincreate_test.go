@@ -17,7 +17,7 @@ var (
 func TestCreate_Happy(t *testing.T) {
 	_, c := client.New(t)
 	for i := 0; i < 200; i++ {
-		body := *tests.RandomBody()
+		body := *tests.RandomBody(true)
 		bodyJSON, err := json.Marshal(body)
 		require.NoError(t, err)
 
@@ -32,7 +32,7 @@ func TestCreate_Happy(t *testing.T) {
 
 func TestCreate_Duplicate(t *testing.T) {
 	_, c := client.New(t)
-	body := *tests.RandomBody()
+	body := *tests.RandomBody(true)
 	bodyJSON, err := json.Marshal(body)
 	require.NoError(t, err)
 

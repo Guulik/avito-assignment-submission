@@ -39,12 +39,12 @@ func (s *Service) GetUserBanner(featureId int64, tagId int64, lastRevision bool)
 		}
 	}
 
-	var content interface{}
+	var content map[string]interface{}
 	err = json.Unmarshal(bannerJSON, &content)
 	if err != nil {
 		log.Error("failed to unmarshal content from banner", sl.Err(err))
 		return nil, echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return content.(map[string]interface{}), nil
+	return content, nil
 }

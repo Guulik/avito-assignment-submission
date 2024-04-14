@@ -73,21 +73,34 @@ func (s *Service) UpdateBanner(bannerId int64, tagIds []int64, featureId int64, 
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
+	currentBannerDb, err := s.storage.GetBannerById(bannerId)
+	currentBanner, err := model.ToBanner(*currentBannerDb)
+
+	if tagIds == nil || len(tagIds) == 0 {
+		tagIds = currentBanner.TagIds
+	}
+	if featureId < 0 {
+		featureId = currentBanner.FeatureId
+	}
+	if content == nil {
+		content = currentBanner.Content
+	}
+	if isActive == false {
+		isActive = currentBanner.IsActive
+	}
+
 	err = s.storage.Patch(bannerId, tagIds, featureId, SQLContent, isActive)
 	if err != nil {
 		return err
 	}
 
-	//if feature or tag were modified, delete from cache
-	if featureId > 0 || (len(tagIds) > 0 && tagIds != nil) {
-		bannerDb, _ := s.storage.GetBannerById(bannerId)
-		banner, _ := model.ToBanner(*bannerDb)
-		for _, tag := range banner.TagIds {
-			err = s.cache.DeleteBannerCache(banner.FeatureId, tag)
-		}
-		if err != nil {
-			log.Warn("failed to clean cache after patch", sl.Err(err))
-		}
+	bannerDb, _ := s.storage.GetBannerById(bannerId)
+	banner, _ := model.ToBanner(*bannerDb)
+	for _, tag := range banner.TagIds {
+		err = s.cache.DeleteBannerCache(banner.FeatureId, tag)
+	}
+	if err != nil {
+		log.Warn("failed to clean cache after patch", sl.Err(err))
 	}
 
 	return nil

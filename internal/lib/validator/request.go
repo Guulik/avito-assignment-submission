@@ -51,18 +51,6 @@ func CheckUpdateRequest(req *request.UpdateRequest, advanced bool) error {
 	if req.BannerId < 1 {
 		return errors.New("incorrect bannerId: bannerId must be >1")
 	}
-	if reflect.TypeOf(req.FeatureId) != reflect.TypeOf(int64(0)) {
-		return errors.New("incorrect featureId")
-	}
-	if reflect.TypeOf(req.TagIds) != reflect.TypeOf([]int64{}) {
-		return errors.New("incorrect tagIds")
-	}
-	if req.FeatureId < 0 {
-		return errors.New("incorrect featureId")
-	}
-	if len(req.TagIds) == 0 || req.TagIds == nil {
-		return errors.New("incorrect tags: tags cannot be empty")
-	}
 	req.TagIds = removeDuplicates(req.TagIds)
 	if advanced {
 		for i, tag := range req.TagIds {

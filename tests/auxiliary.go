@@ -4,6 +4,7 @@ import (
 	"Avito_trainee_assignment/internal/domain/model"
 	"Avito_trainee_assignment/tests/client"
 	"encoding/json"
+	"fmt"
 	"github.com/brianvoe/gofakeit"
 	"github.com/hashicorp/go-set"
 	"io"
@@ -97,7 +98,7 @@ func SpareTags() []int64 {
 	return tags
 }
 
-func randomTags() []int64 {
+func RandomTags() []int64 {
 	var tags []int64
 	for i := 0; i < 1+rand.Intn(3); i++ {
 		tag := int64(gofakeit.Uint32())
@@ -120,12 +121,12 @@ func RandomContent() map[string]interface{} {
 	return content
 }
 
-func RandomBody() *ReqBody {
+func RandomBody(isActive bool) *ReqBody {
 	return &ReqBody{
 		Feature:  int64(gofakeit.Uint32()),
-		Tags:     randomTags(),
+		Tags:     RandomTags(),
 		Content:  RandomContent(),
-		IsActive: gofakeit.Bool(),
+		IsActive: isActive,
 	}
 }
 
@@ -143,4 +144,20 @@ func GetAll() []model.Banner {
 		log.Fatal(err)
 	}
 	return banners
+}
+
+func GetPostedId(body *ReqBody) int64 {
+	c := &http.Client{}
+	url := GetAllURL + fmt.Sprintf("?feature_id=%d&tag_id=%d",
+		body.Feature,
+		body.Tags[0])
+	req := client.FormRequest(http.MethodGet, url, nil, client.AdminToken)
+	resp, err := c.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	resBytes, _ := io.ReadAll(resp.Body)
+	var postedBanner []model.Banner
+	err = json.Unmarshal(resBytes, &postedBanner)
+	return postedBanner[0].ID
 }
