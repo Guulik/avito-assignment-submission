@@ -6,9 +6,10 @@ import (
 	sl "Avito_trainee_assignment/internal/lib/logger/slog"
 	"Avito_trainee_assignment/internal/lib/validator"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"log/slog"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 func (a *Api) GetBanner(ctx echo.Context) error {
@@ -17,7 +18,7 @@ func (a *Api) GetBanner(ctx echo.Context) error {
 	log := a.log.With(
 		slog.String("op", op),
 	)
-	//default empty request values
+	// default empty request values
 	req := request.GetRequest{
 		Token:     "",
 		FeatureId: -1,
@@ -26,7 +27,7 @@ func (a *Api) GetBanner(ctx echo.Context) error {
 		Offset:    -1,
 	}
 
-	//checks if request in correct form and bind it
+	// checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -48,7 +49,6 @@ func (a *Api) GetBanner(ctx echo.Context) error {
 		req.Limit,
 		req.Offset,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 	log := a.log.With(
 		slog.String("op", op),
 	)
-	//default empty request values
+	// default empty request values
 	req := request.CreateRequest{
 		Token:     "",
 		TagIds:    nil,
@@ -70,7 +70,7 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 		IsActive:  true,
 	}
 
-	//checks if request in correct form and bind it
+	// checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -96,7 +96,6 @@ func (a *Api) CreateBanner(ctx echo.Context) error {
 		req.Content,
 		req.IsActive,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -110,7 +109,7 @@ func (a *Api) PatchBanner(ctx echo.Context) error {
 	log := a.log.With(
 		slog.String("op", op),
 	)
-	//default empty request values
+	// default empty request values
 	req := request.UpdateRequest{
 		BannerId:  -1,
 		Token:     "",
@@ -119,7 +118,7 @@ func (a *Api) PatchBanner(ctx echo.Context) error {
 		Content:   nil,
 		IsActive:  false,
 	}
-	//checks if request in correct form and bind it
+	// checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -159,14 +158,14 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 	log := a.log.With(
 		slog.String("op", op),
 	)
-	//default empty request values
+	// default empty request values
 	req := request.DeleteRequest{
 		BannerId:  -1,
 		FeatureId: -1,
 		TagId:     -1,
 		Token:     "",
 	}
-	//checks if request in correct form and bind it
+	// checks if request in correct form and bind it
 	err := binder.BindReq(log, ctx, &req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -187,16 +186,15 @@ func (a *Api) DeleteBanner(ctx echo.Context) error {
 	}
 
 	if req.FeatureId > 0 || req.TagId > 0 {
-		defer func() error {
+		defer func() {
 			err = a.svc.DeleteBanner(
 				req.BannerId,
 				req.FeatureId,
 				req.TagId,
 			)
 			if err != nil {
-				return err
+				log.Error("failed to delete banner", err)
 			}
-			return nil
 		}()
 	}
 	err = a.svc.DeleteBanner(

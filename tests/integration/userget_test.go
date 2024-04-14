@@ -5,21 +5,20 @@ import (
 	"Avito_trainee_assignment/tests/client"
 	"encoding/json"
 	"fmt"
-	"github.com/brianvoe/gofakeit"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
 	"testing"
+
+	"github.com/brianvoe/gofakeit"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-var (
-	bannerGetUserURL = client.BaseURL + "/user_banner"
-)
+var bannerGetUserURL = client.BaseURL + "/user_banner"
 
 func TestUserGet_Happy(t *testing.T) {
 	_, c := client.New(t)
-	//existing active banner
+	// existing active banner
 	activeBanner := tests.GetRandomActive()
 	url := bannerGetUserURL + fmt.Sprintf("?feature_id=%d&tag_id=%d",
 		activeBanner.FeatureId,
@@ -32,11 +31,11 @@ func TestUserGet_Happy(t *testing.T) {
 	require.NoError(t, err, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode, string(resultBytes))
 
-	//check if result deserializable
+	// check if result deserializable
 	var resultContentObj map[string]interface{}
 	err = json.Unmarshal(resultBytes, &resultContentObj)
-
 	require.NoError(t, err)
+	resp.Body.Close()
 }
 
 func TestUserGet_BadRequest(t *testing.T) {
@@ -89,11 +88,11 @@ func TestUserGet_BadRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			req := client.FormRequest(http.MethodGet, tt.url, nil, client.UserToken)
 			resp, err := c.Client.Do(req)
-
 			require.NoError(t, err)
 			require.Equal(t, http.StatusBadRequest, resp.StatusCode)
 			resBytes, _ := io.ReadAll(resp.Body)
 			require.Contains(t, string(resBytes), tt.expectedErr)
+			resp.Body.Close()
 		})
 	}
 }
@@ -107,8 +106,8 @@ func TestUserGet_NotFound(t *testing.T) {
 		expectedErr string
 	}{
 		{
-			//most likely the banner will not exist by random combination.
-			//though the opposite is possible
+			// most likely the banner will not exist by random combination.
+			// though the opposite is possible
 			name: "random non-existent banner",
 			url: bannerGetUserURL + fmt.Sprintf("?feature_id=%v&tag_id=%v",
 				gofakeit.Uint32(),
@@ -146,9 +145,11 @@ func TestUserGet_InvalidToken(t *testing.T) {
 	resp, err := c.Client.Do(req)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
 
 	req = client.FormRequest(http.MethodGet, url, nil, client.ExpiredToken)
 	resp, err = c.Client.Do(req)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
 }

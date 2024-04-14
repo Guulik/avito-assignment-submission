@@ -5,17 +5,16 @@ import (
 	"Avito_trainee_assignment/tests/client"
 	"encoding/json"
 	"fmt"
-	"github.com/brianvoe/gofakeit"
-	"github.com/stretchr/testify/require"
 	"io"
 	"math/rand"
 	"net/http"
 	"testing"
+
+	"github.com/brianvoe/gofakeit"
+	"github.com/stretchr/testify/require"
 )
 
-var (
-	GetAllURL = client.BaseURL + "/banner"
-)
+var GetAllURL = client.BaseURL + "/banner"
 
 func TestGetBanners_Happy(t *testing.T) {
 	_, c := client.New(t)
@@ -80,31 +79,35 @@ func TestGetBanners_Happy(t *testing.T) {
 			resBytes, _ := io.ReadAll(resp.Body)
 			require.NoError(t, err, err)
 
-			//check if result deserializable
+			// check if result deserializable
 			var resultObj []map[string]interface{}
 			err = json.Unmarshal(resBytes, &resultObj)
-
 			require.NoError(t, err)
+			resp.Body.Close()
 		})
 	}
 }
+
 func TestAdminGet_InvalidToken(t *testing.T) {
 	_, c := client.New(t)
 	url := GetAllURL
 
-	//invalid token
+	// invalid token
 	req := client.FormRequest(http.MethodGet, url, nil, "dummy invalid token")
 	resp, err := c.Client.Do(req)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
 
 	req = client.FormRequest(http.MethodGet, url, nil, client.ExpiredToken)
 	resp, err = c.Client.Do(req)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
 
 	req = client.FormRequest(http.MethodGet, url, nil, client.UserToken)
 	resp, err = c.Client.Do(req)
 	require.NoError(t, err)
 	require.Equal(t, http.StatusForbidden, resp.StatusCode)
+	resp.Body.Close()
 }

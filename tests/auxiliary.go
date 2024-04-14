@@ -5,13 +5,14 @@ import (
 	"Avito_trainee_assignment/tests/client"
 	"encoding/json"
 	"fmt"
-	"github.com/brianvoe/gofakeit"
-	"github.com/hashicorp/go-set"
 	"io"
 	"log"
 	"math/rand"
 	"net/http"
 	"slices"
+
+	"github.com/brianvoe/gofakeit"
+	"github.com/hashicorp/go-set"
 )
 
 type ReqBody struct {
@@ -21,9 +22,7 @@ type ReqBody struct {
 	IsActive bool                   `json:"is_active"`
 }
 
-var (
-	GetAllURL = client.BaseURL + "/banner"
-)
+var GetAllURL = client.BaseURL + "/banner"
 
 func GetFirstInactive() *model.Banner {
 	banners := GetAll()
@@ -60,41 +59,9 @@ func TagsSet() *set.Set[int64] {
 	banners := GetAll()
 	var tagsList []int64
 	for _, b := range banners {
-		for _, t := range b.TagIds {
-			tagsList = append(tagsList, t)
-		}
+		tagsList = append(tagsList, b.TagIds...)
 	}
 	tags := set.From[int64](tagsList)
-	return tags
-}
-
-func SpareFeature() int64 {
-	usedFeatures := FeaturesSet().Slice()
-	if len(usedFeatures) > 200 {
-		return int64(gofakeit.Uint32())
-	}
-	feature := int64(gofakeit.Uint32())
-	for {
-		if !slices.Contains(usedFeatures, feature) {
-			return feature
-		}
-		feature = int64(gofakeit.Uint32())
-	}
-}
-
-func SpareTags() []int64 {
-	usedTags := TagsSet().Slice()
-
-	var tags []int64
-	for i := 0; i < 1+rand.Intn(3); i++ {
-		tag := int64(gofakeit.Uint32())
-		if len(usedTags) > 200 {
-			tags = append(tags, tag)
-		}
-		if !slices.Contains(usedTags, tag) && tag > 0 {
-			tags = append(tags, tag)
-		}
-	}
 	return tags
 }
 
@@ -110,7 +77,7 @@ func RandomTags() []int64 {
 }
 
 func RandomContent() map[string]interface{} {
-	//just random silly values
+	// just random silly values
 	fields := []string{gofakeit.CurrencyShort(), gofakeit.Extension(), gofakeit.HackerVerb(), gofakeit.SSN(), gofakeit.Month()}
 	values := []interface{}{gofakeit.BeerName(), gofakeit.Name(), gofakeit.Color(), gofakeit.Country(), gofakeit.Gender(), gofakeit.Int8()}
 
@@ -134,10 +101,14 @@ func GetAll() []model.Banner {
 	c := &http.Client{}
 	req := client.FormRequest(http.MethodGet, GetAllURL, nil, client.AdminToken)
 	resp, err := c.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
 	respBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 	var banners []model.Banner
 	err = json.Unmarshal(respBytes, &banners)
 	if err != nil {
@@ -153,11 +124,15 @@ func GetPostedId(body *ReqBody) int64 {
 		body.Tags[0])
 	req := client.FormRequest(http.MethodGet, url, nil, client.AdminToken)
 	resp, err := c.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
 	resBytes, _ := io.ReadAll(resp.Body)
 	var postedBanner []model.Banner
 	err = json.Unmarshal(resBytes, &postedBanner)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return postedBanner[0].ID
 }

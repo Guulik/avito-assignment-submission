@@ -2,15 +2,15 @@ package validator
 
 import (
 	"errors"
-	"github.com/dgrijalva/jwt-go"
 	"os"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 var (
 	ErrNotValid = errors.New("provided token is not valid")
 	ErrExpired  = errors.New("provided token is not valid")
 	ErrNotAdmin = errors.New("token does not belongs to admin")
-	//ErrNotUser  = errors.New("token does not belongs to user")
 )
 
 func CheckAdmin(token string) error {
@@ -18,7 +18,6 @@ func CheckAdmin(token string) error {
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte(key), nil
 	})
-
 	if err != nil {
 		return err
 	}

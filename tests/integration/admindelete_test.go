@@ -4,9 +4,10 @@ import (
 	"Avito_trainee_assignment/tests"
 	"Avito_trainee_assignment/tests/client"
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -16,7 +17,7 @@ var (
 
 func TestDelete_Happy(t *testing.T) {
 	_, c := client.New(t)
-	//existing active banner
+	// existing active banner
 	lastTest := tests.GetRandomActive()
 	testsTable := []struct {
 		name string
@@ -51,14 +52,14 @@ func TestDelete_Happy(t *testing.T) {
 			resp, err := c.Client.Do(req)
 			require.NoError(t, err)
 			require.Equal(t, http.StatusNoContent, resp.StatusCode)
+			resp.Body.Close()
 		})
 	}
-
 }
 
 func TestDelete_BadRequest(t *testing.T) {
 	_, c := client.New(t)
-	//existing active banner
+	// existing active banner
 	activeBanner := tests.GetRandomActive()
 
 	teststable := []struct {
@@ -95,6 +96,7 @@ func TestDelete_BadRequest(t *testing.T) {
 			resp, err := c.Client.Do(req)
 			require.NoError(t, err)
 			require.Equal(t, http.StatusBadRequest, resp.StatusCode)
+			resp.Body.Close()
 		})
 	}
 }

@@ -6,10 +6,11 @@ import (
 	"Avito_trainee_assignment/internal/storage"
 	"context"
 	"fmt"
-	"github.com/labstack/gommon/log"
-	"github.com/redis/go-redis/v9"
 	"log/slog"
 	"time"
+
+	"github.com/labstack/gommon/log"
+	"github.com/redis/go-redis/v9"
 )
 
 var _ storage.BannerCache = (*Cache)(nil)
@@ -49,7 +50,8 @@ func (c Cache) GetBannerCached(
 }
 
 func (c Cache) SetBannerCache(featureId int64,
-	tagId int64, content []byte) error {
+	tagId int64, content []byte,
+) error {
 	const op = "Cache.SetBannerCache"
 	log := c.log.With(
 		slog.String("op", op),

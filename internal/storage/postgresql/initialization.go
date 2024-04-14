@@ -3,6 +3,7 @@ package postgresql
 import (
 	"Avito_trainee_assignment/config"
 	"fmt"
+
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 )
@@ -17,6 +18,7 @@ func InitPostgres(c *config.Config) (*sqlx.DB, error) {
 	}
 	return db, err
 }
+
 func CreateTable(db *sqlx.DB) error {
 	var (
 		query = `
