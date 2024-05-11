@@ -67,7 +67,7 @@ func (a *App) Run() error {
 }
 
 func (a *App) MustRun() {
-	if err := a.Run(); err != nil {
+	if err := a.Run(); err != nil && !errors.Is(err, http.ErrServerClosed){
 		panic(err)
 	}
 }
