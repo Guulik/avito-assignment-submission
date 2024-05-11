@@ -7,10 +7,11 @@ import (
 	"Avito_trainee_assignment/internal/storage/postgresql"
 	"Avito_trainee_assignment/internal/storage/redis"
 	"context"
+	"errors"
 	"fmt"
-	"log/slog"
-
 	"github.com/labstack/echo/v4"
+	"log/slog"
+	"net/http"
 )
 
 type App struct {
@@ -67,17 +68,18 @@ func (a *App) Run() error {
 }
 
 func (a *App) MustRun() {
-	if err := a.Run(); err != nil {
+	if err := a.Run(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		panic(err)
 	}
 }
 
-func (a *App) Stop() error {
+func (a *App) Stop(ctx context.Context) error {
 	fmt.Println("stopping server..." + " op = app.Stop")
-	ctx := context.Background()
+
 	if err := a.echo.Shutdown(ctx); err != nil {
-		fmt.Println("failed to gracefully stop server")
+		fmt.Println("failed to shutdown server")
 		return err
+
 	}
 	return nil
 }
