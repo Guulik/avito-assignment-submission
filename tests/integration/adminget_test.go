@@ -1,8 +1,8 @@
 package integration
 
 import (
-	tests "Avito_trainee_assignment/tests"
-	"Avito_trainee_assignment/tests/client"
+	tests "Banner_Infrastructure/tests"
+	"Banner_Infrastructure/tests/client"
 	"encoding/json"
 	"fmt"
 	"io"

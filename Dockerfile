@@ -17,8 +17,4 @@ COPY --from=builder /app/app .
 
 EXPOSE 4444
 
-ENV POSTGRES_USER=postgres
-ENV POSTGRES_PASSWORD=5379
-ENV POSTGRES_DB=bannerDb
-
 CMD ["./app"]

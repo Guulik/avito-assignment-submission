@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"Avito_trainee_assignment/internal/domain/request"
+	"Banner_Infrastructure/internal/domain/request"
 	"errors"
 	"fmt"
 	"reflect"

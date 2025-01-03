@@ -4,14 +4,14 @@ services:
     image: postgres:latest
     hostname: "postgres"
     ports:
-      - "7777:7777"
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 5379
-      POSTGRES_DB: bannerDb
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: banner_test
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    command: -p 7777
+    command: -p 5432
 
   redis:
     image: redis:latest
@@ -23,7 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: avito_banner:v0.0.3
+    image: banner_test
     depends_on:
       - postgres
       - redis
@@ -32,7 +32,7 @@ services:
     ports:
       - "4444:4444"
     volumes:
-      - ./config/stage.yaml:/config/stage.yaml
+      - ./internal/configure/stage.yaml:/config/stage.yaml
 
 volumes:
   postgres_data:

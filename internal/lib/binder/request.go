@@ -1,7 +1,7 @@
 package binder
 
 import (
-	sl "Avito_trainee_assignment/internal/lib/logger/slog"
+	sl "Banner_Infrastructure/internal/lib/logger/slog"
 	"log/slog"
 
 	"github.com/labstack/echo/v4"

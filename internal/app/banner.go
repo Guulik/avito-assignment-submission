@@ -1,14 +1,16 @@
 package app
 
 import (
-	"Avito_trainee_assignment/config"
-	"Avito_trainee_assignment/internal/api"
-	service "Avito_trainee_assignment/internal/service/bannerSvc"
-	"Avito_trainee_assignment/internal/storage/postgresql"
-	"Avito_trainee_assignment/internal/storage/redis"
+	"Banner_Infrastructure/internal/api"
+	"Banner_Infrastructure/internal/configure"
+	sl "Banner_Infrastructure/internal/lib/logger/slog"
+	service "Banner_Infrastructure/internal/service/bannerSvc"
+	"Banner_Infrastructure/internal/storage/postgresql"
+	"Banner_Infrastructure/internal/storage/redis"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"log/slog"
 	"net/http"
@@ -19,32 +21,31 @@ type App struct {
 	svc     *service.Service
 	storage *postgresql.Storage
 	echo    *echo.Echo
+	pool    *sqlx.DB
 	cache   *redis.Cache
 }
 
-func New(log *slog.Logger, cfg *config.Config) *App {
+func New(log *slog.Logger, cfg *configure.Config) *App {
 	app := &App{}
 
 	app.echo = echo.New()
 
-	db, err := postgresql.InitPostgres(cfg)
-	if err != nil {
-		log.Error("failed to connect to PostgresSQL", err)
-	}
-	err = postgresql.CreateTable(db)
-	if err != nil {
-		log.Error("failed to connect to create table in DB", err)
-	}
+	app.pool = configure.NewPostgres(cfg)
 
 	rds := redis.InitRedis(cfg)
 
-	app.storage = postgresql.New(log, db)
+	app.storage = postgresql.New(log, app.pool)
 
 	app.cache = redis.New(log, rds, cfg)
 
 	app.svc = service.New(log, app.storage, app.cache)
 
 	app.api = api.New(log, app.svc)
+
+	err := cfg.MigrateUp()
+	if err != nil {
+		log.Error("failed to connect to create table in DB", sl.Err(err))
+	}
 
 	app.echo.GET("/user_banner", app.api.GetUserBanner)
 	app.echo.GET("/banner", app.api.GetBanner)
@@ -79,7 +80,10 @@ func (a *App) Stop(ctx context.Context) error {
 	if err := a.echo.Shutdown(ctx); err != nil {
 		fmt.Println("failed to shutdown server")
 		return err
+	}
 
+	if err := a.pool.Close(); err != nil {
+		fmt.Println("failed to close connection")
 	}
 	return nil
 }

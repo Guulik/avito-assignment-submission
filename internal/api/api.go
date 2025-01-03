@@ -1,7 +1,7 @@
 package api
 
 import (
-	"Avito_trainee_assignment/internal/service"
+	"Banner_Infrastructure/internal/service"
 	"log/slog"
 )
 

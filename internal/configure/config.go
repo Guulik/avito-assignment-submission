@@ -1,4 +1,4 @@
-package config
+package configure
 
 import (
 	"os"
@@ -17,7 +17,7 @@ type Config struct {
 
 type Postgres struct {
 	Host     string `yaml:"host"`
-	SQLPort  string `yaml:"SQLPort"`
+	SQLPort  int    `yaml:"SQLPort"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	DBName   string `yaml:"DBName"`
@@ -32,7 +32,7 @@ type Redis struct {
 	TTLMinutes time.Duration `yaml:"TTLMinutes"`
 }
 
-func MustLoad() *Config {
+func MustLoadConfig() *Config {
 	configPath := fetchConfigPath()
 	if configPath == "" {
 		panic("config path is empty")
@@ -62,5 +62,5 @@ func fetchConfigPath() string {
 		return v
 	}
 
-	return "./config/local.yaml"
+	return "./internal/configure/local.yaml"
 }

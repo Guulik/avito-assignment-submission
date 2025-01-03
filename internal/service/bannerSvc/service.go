@@ -1,8 +1,8 @@
 package bannerSvc
 
 import (
-	"Avito_trainee_assignment/internal/service"
-	"Avito_trainee_assignment/internal/storage"
+	"Banner_Infrastructure/internal/service"
+	"Banner_Infrastructure/internal/storage"
 	"log/slog"
 )
 

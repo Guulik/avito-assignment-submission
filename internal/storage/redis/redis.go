@@ -1,9 +1,9 @@
 package redis
 
 import (
-	"Avito_trainee_assignment/config"
-	sl "Avito_trainee_assignment/internal/lib/logger/slog"
-	"Avito_trainee_assignment/internal/storage"
+	"Banner_Infrastructure/internal/configure"
+	sl "Banner_Infrastructure/internal/lib/logger/slog"
+	"Banner_Infrastructure/internal/storage"
 	"context"
 	"fmt"
 	"log/slog"
@@ -18,10 +18,10 @@ var _ storage.BannerCache = (*Cache)(nil)
 type Cache struct {
 	log   *slog.Logger
 	redis *redis.Client
-	cfg   *config.Config
+	cfg   *configure.Config
 }
 
-func New(log *slog.Logger, redis *redis.Client, cfg *config.Config) *Cache {
+func New(log *slog.Logger, redis *redis.Client, cfg *configure.Config) *Cache {
 	return &Cache{
 		log:   log,
 		redis: redis,

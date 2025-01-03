@@ -1,7 +1,7 @@
 package client
 
 import (
-	"Avito_trainee_assignment/config"
+	"Banner_Infrastructure/internal/configure"
 	"context"
 	"io"
 	"net"
@@ -13,7 +13,7 @@ import (
 
 type Suite struct {
 	*testing.T
-	Cfg    *config.Config
+	Cfg    *configure.Config
 	Client *http.Client
 }
 
@@ -34,7 +34,7 @@ func New(t *testing.T) (context.Context, *Suite) {
 	t.Helper()
 	t.Parallel()
 
-	cfg := config.MustLoadPath(configPath())
+	cfg := configure.MustLoadPath(configPath())
 
 	BaseURL = address(cfg)
 
@@ -78,6 +78,6 @@ func configPath() string {
 	return "../../config/stage.yaml"
 }
 
-func address(cfg *config.Config) string {
+func address(cfg *configure.Config) string {
 	return net.JoinHostPort(`http://localhost`, strconv.Itoa(cfg.Port))
 }

@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"Avito_trainee_assignment/internal/domain/model"
+	"Banner_Infrastructure/internal/domain/model"
 )
 
 type BannerStorage interface {

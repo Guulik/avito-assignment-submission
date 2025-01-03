@@ -1,14 +1,14 @@
 package postgresql
 
 import (
-	"Avito_trainee_assignment/config"
+	"Banner_Infrastructure/internal/configure"
 	"fmt"
 
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 
-func InitPostgres(c *config.Config) (*sqlx.DB, error) {
+func InitPostgres(c *configure.Config) (*sqlx.DB, error) {
 	connectionUrl := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		c.Postgres.Host, c.Postgres.SQLPort, c.Postgres.User, c.Postgres.Password, c.Postgres.DBName, c.Postgres.SslMode)
 

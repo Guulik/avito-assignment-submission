@@ -1,7 +1,7 @@
 package bannerSvc
 
 import (
-	sl "Avito_trainee_assignment/internal/lib/logger/slog"
+	sl "Banner_Infrastructure/internal/lib/logger/slog"
 	"encoding/json"
 	"log/slog"
 	"net/http"

@@ -1,8 +1,8 @@
 package bannerSvc
 
 import (
-	"Avito_trainee_assignment/internal/domain/model"
-	sl "Avito_trainee_assignment/internal/lib/logger/slog"
+	"Banner_Infrastructure/internal/domain/model"
+	sl "Banner_Infrastructure/internal/lib/logger/slog"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -93,7 +93,7 @@ func (s *Service) UpdateBanner(bannerId int64, tagIds []int64, featureId int64, 
 	if content == nil {
 		content = currentBanner.Content
 	}
-	if !isActive {
+	if isActive != currentBanner.IsActive {
 		isActive = currentBanner.IsActive
 	}
 	SQLContent, err := json.Marshal(content)

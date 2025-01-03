@@ -1,8 +1,8 @@
 package integration
 
 import (
-	"Avito_trainee_assignment/tests"
-	"Avito_trainee_assignment/tests/client"
+	"Banner_Infrastructure/tests"
+	"Banner_Infrastructure/tests/client"
 	"bytes"
 	"encoding/json"
 	"github.com/brianvoe/gofakeit"

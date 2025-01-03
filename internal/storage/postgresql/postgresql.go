@@ -1,10 +1,10 @@
 package postgresql
 
 import (
-	"Avito_trainee_assignment/internal/constants"
-	"Avito_trainee_assignment/internal/domain/model"
-	sl "Avito_trainee_assignment/internal/lib/logger/slog"
-	"Avito_trainee_assignment/internal/storage"
+	"Banner_Infrastructure/internal/constants"
+	"Banner_Infrastructure/internal/domain/model"
+	sl "Banner_Infrastructure/internal/lib/logger/slog"
+	"Banner_Infrastructure/internal/storage"
 	"fmt"
 	"log/slog"
 	"net/http"

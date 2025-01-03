@@ -1,16 +1,16 @@
-env: "local"
+env: "stage"
 port: 4444
 timeout: 1m
 postgres:
-  host: "localhost"
-  SQLPort: "7777"
+  host: "postgres"
+  SQLPort: 5432
   user: "postgres"
-  password: "5379"
-  DBName: "bannerDb"
+  password: "password"
+  DBName: "banner_test"
   sslMode: "disable"
   driver: "pgx"
 redis:
-  address: "localhost:6379"
+  address: "redis:6379"
   password: "5379"
   DB: 0
   TTLMinutes: 5m

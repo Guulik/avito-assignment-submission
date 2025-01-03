@@ -1,8 +1,8 @@
 package tests
 
 import (
-	"Avito_trainee_assignment/internal/domain/model"
-	"Avito_trainee_assignment/tests/client"
+	"Banner_Infrastructure/internal/domain/model"
+	"Banner_Infrastructure/tests/client"
 	"encoding/json"
 	"fmt"
 	"io"

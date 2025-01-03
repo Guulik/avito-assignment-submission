@@ -1,9 +1,9 @@
 package main
 
 import (
-	"Avito_trainee_assignment/config"
-	"Avito_trainee_assignment/internal/app"
-	sl "Avito_trainee_assignment/internal/lib/logger/slog"
+	"Banner_Infrastructure/internal/app"
+	"Banner_Infrastructure/internal/configure"
+	sl "Banner_Infrastructure/internal/lib/logger/slog"
 	"context"
 	"fmt"
 	"log/slog"
@@ -19,7 +19,7 @@ const (
 )
 
 func main() {
-	cfg := config.MustLoad()
+	cfg := configure.MustLoadConfig()
 
 	log := setupLogger(cfg.Env)
 

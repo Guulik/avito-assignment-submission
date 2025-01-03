@@ -1,10 +1,10 @@
 package api
 
 import (
-	"Avito_trainee_assignment/internal/domain/request"
-	"Avito_trainee_assignment/internal/lib/binder"
-	sl "Avito_trainee_assignment/internal/lib/logger/slog"
-	"Avito_trainee_assignment/internal/lib/validator"
+	"Banner_Infrastructure/internal/domain/request"
+	"Banner_Infrastructure/internal/lib/binder"
+	sl "Banner_Infrastructure/internal/lib/logger/slog"
+	"Banner_Infrastructure/internal/lib/validator"
 	"fmt"
 	"log/slog"
 	"net/http"
